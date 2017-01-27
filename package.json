@@ -1,0 +1,25 @@
+{
+  "name": "jarvis",
+  "version": "1.0.0",
+  "description": "This is a slackbot designed to work for a DevOps environment. Made by Team 10 at ASU.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jessicalynn/jarvis.git"
+  },
+  "keywords": [
+    "slackbot"
+  ],
+  "author": "Ryan Baker, Alex Briggs, Jessica Lynn, Vikas Bhagat, Christopher Ruiter",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jessicalynn/jarvis/issues"
+  },
+  "homepage": "https://github.com/jessicalynn/jarvis#readme",
+  "dependencies": {
+    "@slack/client": "^3.8.1"
+  }
+}

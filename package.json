@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/jessicalynn/jarvis#readme",
   "dependencies": {
-    "@slack/client": "^3.8.1"
+    "@slack/client": "^3.8.1",
+     "aws-sdk": "*"
   }
 }

@@ -6,6 +6,8 @@
 
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
+var mainController = require('./mainController');
+
 
 
 var token = process.env.SLACK_API_TOKEN || '';
@@ -16,7 +18,7 @@ rtm.start();
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   console.log('Message:', message);
 
-  rtm.sendMessage("I Love Tacos. This is a Basic Test.", message.channel);
+  rtm.sendMessage(mainController.git(), message.channel);
 
     
 });

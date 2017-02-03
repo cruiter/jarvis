@@ -7,6 +7,7 @@
 var RtmClient = require('@slack/client').RtmClient;
 var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 var mainController = require('./mainController');
+var MemoryDataStore = require('@slack/client').MemoryDataStore;
 
 
 
@@ -18,13 +19,15 @@ rtm.start();
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
   console.log('Message:', message);
 
-  rtm.sendMessage(mainController.git(), message.channel);
-
+  //rtm.sendMessage(mainController.git();
+	rtm.sendMessage("User "+rtm.dataStore.getUserById(message.user).name+' posted a message in '+rtm.dataStore.getChannelGroupOrDMById(message.channel).name+" channel", message.channel);
+    
     
 });
 
 rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
   console.log('Reaction added:', reaction);
+  rtm.sendMessage("Thanks "+rtm.dataStore.getUserById(reaction.user).name,reaction.item.channel);
 });
 
 rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {

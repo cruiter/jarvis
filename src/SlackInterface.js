@@ -27,8 +27,7 @@ var handleRtmMessage = function(message) {
 
     if (keyMessage(text, 'aws ')) {
         text = text.substring('aws '.length, text.length);
-        if (keyMessage(text, 'describe ec2')) {
-            // the check above should be without a space, the string below should have a space
+        if (keyMessage(text, 'describe ec2 ')) {
             text = text.substring('describe ec2 '.length, text.length);
             if (keyMessage(text, 'instance ')) {
                 AWS.checkEC2Instance(text.substring('instance '.length, text.length)).then(function (resp) {
@@ -45,6 +44,13 @@ var handleRtmMessage = function(message) {
                     console.log(err);
                 });
             }
+        } else if (keyMessage(text, 'check number of instances ')) {
+            AWS.checkNumInstances().then(function (resp) {
+                rtm.sendMessage(resp, message.channel);
+            }, function (err) {
+                rtm.sendMessage('Looks like there was a problem processing your request', message.channel);
+                console.log(err);
+            });
         } else {
             rtm.sendMessage("I'm sorry, this isn't an AWS command I'm familiar with.", message.channel);
         }
@@ -59,7 +65,8 @@ var handleRtmMessage = function(message) {
  */
 
 function keyMessage(text, key) {
-    if (text.length >= key.length && text.substring(0, key.length).toLowerCase() === key) {
+    var temptext = text + ' ';
+    if (temptext.length >= key.length && temptext.substring(0, key.length).toLowerCase() === key) {
         return true;
     }
     return false;

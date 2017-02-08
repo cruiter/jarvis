@@ -62,3 +62,11 @@ exports.checkEC2 = function() {
         });
     });
 }
+
+exports.checkNumInstances = function () {
+    if (exports.DEBUG) { console.log('checkNumInstances called.') }
+
+    return new Promise(function(fulfill, reject) {
+        fulfill('yay dummy response');
+    });
+}

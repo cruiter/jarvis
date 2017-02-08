@@ -10,6 +10,7 @@
 const RtmClient = require('@slack/client').RtmClient;
 const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const AWS = require('./AWS_API.js');
+var rtm;
 
 const token = process.env.SLACK_API_TOKEN || '';
 const DEBUG = process.env.DEBUG || false;
@@ -114,7 +115,7 @@ var mockRTM = function() {
  */
 
 var main = function() {
-    var rtm = new RtmClient(token);
+    rtm = new RtmClient(token);
     rtm.start();
 
     rtm.on(RTM_EVENTS.MESSAGE, handleRtmMessage);

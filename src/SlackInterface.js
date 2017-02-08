@@ -27,17 +27,26 @@ var handleRtmMessage = function(message) {
 
     if (keyMessage(text, 'aws ')) {
         text = text.substring('aws '.length, text.length);
-        if (keyMessage(text, 'describe ec2 ')) {
+        if (keyMessage(text, 'describe ec2')) {
+            // the check above should be without a space, the string below should have a space
             text = text.substring('describe ec2 '.length, text.length);
             if (keyMessage(text, 'instance ')) {
-                AWS.checkEC2Instance(text.substring('instance '.length, text.length), function (resp) {
+                AWS.checkEC2Instance(text.substring('instance '.length, text.length)).then(function (resp) {
                     rtm.sendMessage(resp, message.channel);
+                }, function (err) {
+                    rtm.sendMessage('Looks like there was a problem processing your request', message.channel);
+                    console.log(err);
                 });
             } else {
-                AWS.checkEC2(function (resp) {
+                AWS.checkEC2().then(function (resp) {
                     rtm.sendMessage(resp, message.channel);
+                }, function (err) {
+                    rtm.sendMessage('Looks like there was a problem processing your request', message.channel);
+                    console.log(err);
                 });
             }
+        } else {
+            rtm.sendMessage("I'm sorry, this isn't an AWS command I'm familiar with.", message.channel);
         }
     } else {
         rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);
@@ -59,6 +68,11 @@ function keyMessage(text, key) {
 
 /*******************************************************************************
  * Test stuff
+ */
+/*
+Sample inputs:
+aws describe ec2 instance i-0a681657adec3b3ee
+aws describe ec2
  */
 var mockRTM = function() {
     var readline = require('readline');
@@ -84,12 +98,7 @@ var mockRTM = function() {
 
         // run the test
         handleRtmMessage(message);
-        process.exit();
     });
-}
-
-if (DEBUG) {
-    return mockRTM();
 }
 
 
@@ -112,4 +121,8 @@ var main = function() {
     });
 }
 
-main();
+if (DEBUG) {
+    mockRTM();
+} else {
+    main();
+}

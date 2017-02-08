@@ -4,27 +4,112 @@
 
 /* eslint no-console:0 */
 
-var RtmClient = require('@slack/client').RtmClient;
-var RTM_EVENTS = require('@slack/client').RTM_EVENTS;
+/*******************************************************************************
+ * Globals
+ */
+const RtmClient = require('@slack/client').RtmClient;
+const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
+const AWS = require('./AWS_API.js');
+
+const token = process.env.SLACK_API_TOKEN || '';
+const DEBUG = process.env.DEBUG || true;
+AWS.DEBUG = DEBUG;
 
 
-var token = process.env.SLACK_API_TOKEN || '';
+/*******************************************************************************
+ * Functions
+ */
 
-var rtm = new RtmClient(token);
-rtm.start();
+var handleRtmMessage = function(message) {
+    if (DEBUG) { console.log('Message:', message) }
 
-rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-  console.log('Message:', message);
+    var text = message.text;
 
-  rtm.sendMessage("I Love Tacos. This is a Basic Test.", message.channel);
+    if (keyMessage(text, 'aws ')) {
+        text = text.substring('aws '.length, text.length);
+        if (keyMessage(text, 'describe ec2 ')) {
+            text = text.substring('describe ec2 '.length, text.length);
+            if (keyMessage(text, 'instance ')) {
+                AWS.checkEC2Instance(text.substring('instance '.length, text.length), function (resp) {
+                    rtm.sendMessage(resp, message.channel);
+                });
+            } else {
+                AWS.checkEC2(function (resp) {
+                    rtm.sendMessage(resp, message.channel);
+                });
+            }
+        }
+    } else {
+        rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);
+    }
+}
 
-    
-});
 
-rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
-  console.log('Reaction added:', reaction);
-});
+/*******************************************************************************
+ * Helper functions
+ */
 
-rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
-  console.log('Reaction removed:', reaction);
-});
+function keyMessage(text, key) {
+    if (text.length >= key.length && text.substring(0, key.length).toLowerCase() === key) {
+        return true;
+    }
+    return false;
+}
+
+
+/*******************************************************************************
+ * Test stuff
+ */
+var mockRTM = function() {
+    var readline = require('readline');
+    var rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    process.stdout.write("Please input your test message text: ");
+    rl.on('line', function (line) {
+        var message = {
+            'text': line,
+            'channel': 3
+        };
+
+        // mocking rtm
+        rtm = {};
+        rtm.sendMessage = function(message, channel) {
+            console.log('----------Response message----------');
+            console.log('Text: ' + message);
+            console.log('Channel: ' + channel);
+        }
+
+        // run the test
+        handleRtmMessage(message);
+        process.exit();
+    });
+}
+
+if (DEBUG) {
+    return mockRTM();
+}
+
+
+/*******************************************************************************
+ * main()
+ */
+
+var main = function() {
+    var rtm = new RtmClient(token);
+    rtm.start();
+
+    rtm.on(RTM_EVENTS.MESSAGE, handleRtmMessage);
+
+    rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
+        console.log('Reaction added:', reaction);
+    });
+
+    rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
+        console.log('Reaction removed:', reaction);
+    });
+}
+
+main();

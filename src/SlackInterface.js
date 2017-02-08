@@ -12,7 +12,7 @@ const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const AWS = require('./AWS_API.js');
 
 const token = process.env.SLACK_API_TOKEN || '';
-const DEBUG = process.env.DEBUG || true;
+const DEBUG = process.env.DEBUG || false;
 AWS.DEBUG = DEBUG;
 
 

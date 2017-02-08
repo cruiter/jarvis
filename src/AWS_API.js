@@ -67,6 +67,32 @@ exports.checkNumInstances = function () {
     if (exports.DEBUG) { console.log('checkNumInstances called.') }
 
     return new Promise(function(fulfill, reject) {
-        fulfill('yay dummy response');
+        EC2.describeInstances({}, function(err, data) {
+            if (err) {
+                return reject(err);
+            }
+
+            var instances = data.Reservations[0].Instances;
+            var resp = '';
+            var num = 0;
+
+            if (instances.length === 1) {
+                resp += 'There is 1 instance.\n';
+            } else {
+                resp += 'There are ' + instances.length + ' instances.\n';
+            }
+            for (var i = instances.length - 1; i >= 0; i--) {
+                if (instances[i].State.Name === 'running') {
+                    num++;
+                }
+            }
+            if (num === 1) {
+                resp += '1 instance is running.'
+            } else {
+                resp += '' + num + ' instances, are running.';
+            }
+
+            fulfill(resp);
+        });
     });
 }

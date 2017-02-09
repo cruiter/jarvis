@@ -10,12 +10,12 @@
 const RtmClient = require('@slack/client').RtmClient;
 const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const AWS = require('./AWS_API.js');
-var rtm;
-
 const token = process.env.SLACK_API_TOKEN || '';
 const DEBUG = process.env.DEBUG || false;
 AWS.DEBUG = DEBUG;
 
+var rtm;
+var problemMessage = 'Looks like there was a problem processing your request.';
 
 /*******************************************************************************
  * Functions
@@ -28,30 +28,15 @@ var handleRtmMessage = function(message) {
 
     if (keyMessage(text, 'aws ')) {
         text = text.substring('aws '.length, text.length);
-        if (keyMessage(text, 'describe ec2 ')) {
-            text = text.substring('describe ec2 '.length, text.length);
+        if (keyMessage(text, 'check ec2 ')) {
+            text = text.substring('check ec2 '.length, text.length);
             if (keyMessage(text, 'instance ')) {
-                AWS.checkEC2Instance(text.substring('instance '.length, text.length)).then(function (resp) {
-                    rtm.sendMessage(resp, message.channel);
-                }, function (err) {
-                    rtm.sendMessage('Looks like there was a problem processing your request', message.channel);
-                    console.log(err);
-                });
+                handleMessagePromise(AWS.checkEC2Instance(text.substring('instance '.length, text.length)), message);
             } else {
-                AWS.checkEC2().then(function (resp) {
-                    rtm.sendMessage(resp, message.channel);
-                }, function (err) {
-                    rtm.sendMessage('Looks like there was a problem processing your request', message.channel);
-                    console.log(err);
-                });
+                handleMessagePromise(AWS.checkEC2(), message);
             }
         } else if (keyMessage(text, 'check number of instances ')) {
-            AWS.checkNumInstances().then(function (resp) {
-                rtm.sendMessage(resp, message.channel);
-            }, function (err) {
-                rtm.sendMessage('Looks like there was a problem processing your request', message.channel);
-                console.log(err);
-            });
+            handleMessagePromise(AWS.checkNumInstances(), message);
         } else {
             rtm.sendMessage("I'm sorry, this isn't an AWS command I'm familiar with.", message.channel);
         }
@@ -71,6 +56,15 @@ function keyMessage(text, key) {
         return true;
     }
     return false;
+}
+
+function handleMessagePromise(promise, message) {
+    promise.then(function (resp) {
+        rtm.sendMessage(resp, message.channel);
+    }, function (err) {
+        rtm.sendMessage(problemMessage, message.channel);
+        console.log(err);
+    });
 }
 
 

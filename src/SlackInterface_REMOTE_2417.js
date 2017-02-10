@@ -4,25 +4,18 @@
 
 /* eslint no-console:0 */
 
-
 /*******************************************************************************
  * Globals
  */
 const RtmClient = require('@slack/client').RtmClient;
-const MemoryDataStore = require('@slack/client').MemoryDataStore;
 const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
-const CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
 const AWS = require('./AWS_API.js');
 const token = process.env.SLACK_API_TOKEN || '';
 const DEBUG = process.env.DEBUG || false;
 AWS.DEBUG = DEBUG;
 
-
 var rtm;
 var problemMessage = 'Looks like there was a problem processing your request.';
-
-/*Jarvis Include*/
-var mainController = require('./mainController');
 
 /*******************************************************************************
  * Functions
@@ -45,7 +38,7 @@ var handleRtmMessage = function(message) {
         } else if (keyMessage(text, 'check number of instances ')) {
             handleMessagePromise(AWS.checkNumInstances(), message);
         } else {
-            rtm.sendMessage(rtm.dataStore.getUserById(message.user).name+" I'm sorry, this isn't an AWS command I'm familiar with.", message.channel);
+            rtm.sendMessage("I'm sorry, this isn't an AWS command I'm familiar with.", message.channel);
         }
     } else {
         rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);
@@ -64,21 +57,6 @@ function keyMessage(text, key) {
     }
     return false;
 }
-
-
-/*******************************************************************************
- * SAVED THIS FOR DATA STORE ACCESS EXAMPLE
- */
-/*
-// rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-//   console.log('Message:', message);
-//  // mainControllermessage.text;
-//   //rtm.sendMessage(mainController.git();
-// 	rtm.sendMessage("User "++' posted a message in '+rtm.dataStore.getChannelGroupOrDMById(message.channel).name+" channel", message.channel);
-//     
-//     
-// });
-
 
 function handleMessagePromise(promise, message) {
     promise.then(function (resp) {
@@ -136,18 +114,13 @@ var main = function() {
 
     rtm.on(RTM_EVENTS.MESSAGE, handleRtmMessage);
 
-	rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, function handleRTMAuthenticated() {
-  	  console.log('Jarvis is Online.');
-	});
-	
-	rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
-	  console.log('Reaction added:', reaction);
-	  rtm.sendMessage("Thanks "+rtm.dataStore.getUserById(reaction.user).name,reaction.item.channel);
-	});
+    rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
+        console.log('Reaction added:', reaction);
+    });
 
-	rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
-	  console.log('Reaction removed:', reaction);
-	});
+    rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
+        console.log('Reaction removed:', reaction);
+    });
 }
 
 if (DEBUG) {
@@ -155,4 +128,3 @@ if (DEBUG) {
 } else {
     main();
 }
-

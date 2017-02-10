@@ -13,6 +13,7 @@ const MemoryDataStore = require('@slack/client').MemoryDataStore;
 const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
 const AWS = require('./AWS_API.js');
+const GIT = require('./gitHubModule.js');
 const token = process.env.SLACK_API_TOKEN || '';
 const DEBUG = process.env.DEBUG || false;
 AWS.DEBUG = DEBUG;
@@ -32,7 +33,7 @@ var handleRtmMessage = function(message) {
     if (DEBUG) { console.log('Message:', message) }
 
     var text = message.text;
-
+	console.log(text);
     if (keyMessage(text, 'aws ')) {
         text = text.substring('aws '.length, text.length);
         if (keyMessage(text, 'check ec2 ')) {
@@ -47,6 +48,19 @@ var handleRtmMessage = function(message) {
         } else {
             rtm.sendMessage(rtm.dataStore.getUserById(message.user).name+" I'm sorry, this isn't an AWS command I'm familiar with.", message.channel);
         }
+    } else if (keyMessage(text, 'jarvis ')) {
+        text = text.substring('jarvis '.length, text.length);
+        var userRegex = /<@([A-Z|1-9]+.)>/g;
+        var channelRegex = /<#([A-Z|0-9]+.)\|\w+>/g
+        if (userRegex.test(text)) {
+            rtm.sendMessage("User lookup: "+rtm.dataStore.getUserById(text.replace(userRegex, '$1')).name, message.channel);
+        } else if (channelRegex.test(text)) {
+            rtm.sendMessage("Channel lookup: "+rtm.dataStore.getChannelById(text.replace(channelRegex, '$1')).name, message.channel);
+        } else {
+        	rtm.sendMessage("Jarvis command DNE", message.channel);
+        }
+    } else if (keyMessage(text, 'git ')) {
+        rtm.sendMessage("Git commands: coming soon", message.channel);
     } else {
         rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);
     }
@@ -64,21 +78,6 @@ function keyMessage(text, key) {
     }
     return false;
 }
-
-
-/*******************************************************************************
- * SAVED THIS FOR DATA STORE ACCESS EXAMPLE
- */
-/*
-// rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-//   console.log('Message:', message);
-//  // mainControllermessage.text;
-//   //rtm.sendMessage(mainController.git();
-// 	rtm.sendMessage("User "++' posted a message in '+rtm.dataStore.getChannelGroupOrDMById(message.channel).name+" channel", message.channel);
-//     
-//     
-// });
-
 
 function handleMessagePromise(promise, message) {
     promise.then(function (resp) {
@@ -147,6 +146,7 @@ var main = function() {
 
 	rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
 	  console.log('Reaction removed:', reaction);
+	  rtm.sendMessage(":unamused: :"+reaction.reaction+":",reaction.item.channel);
 	});
 }
 

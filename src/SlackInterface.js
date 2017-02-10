@@ -51,7 +51,7 @@ var handleRtmMessage = function(message) {
     } else if (keyMessage(text, 'jarvis ')) {
         text = text.substring('jarvis '.length, text.length);
         var userRegex = /<@([A-Z|1-9]+.)>/g;
-        var channelRegex = /<#([A-Z|0-9]+.)\|\w+>/g
+        var channelRegex = /<#([A-Z|0-9]+.)\|\w+>/g;
         if (userRegex.test(text)) {
             rtm.sendMessage("User lookup: "+rtm.dataStore.getUserById(text.replace(userRegex, '$1')).name, message.channel);
         } else if (channelRegex.test(text)) {

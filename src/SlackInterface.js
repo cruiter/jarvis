@@ -37,9 +37,9 @@ var handleRtmMessage = function(message) {
     if (DEBUG) { console.log('Message:', message) }
     var text = message.text;
     var firstChar = message.channel.substring(0, 1);
-    
+
     var initCommands = /^(hey jarvis,? ?)|^(jarvis,? ?)/i; //DO NOT ADD GLOBAL FLAG
-    
+
     //Message is from a channel or group
     if (firstChar === 'C' | firstChar === 'G') {
         if (initCommands.test(text)){
@@ -66,7 +66,7 @@ var handleRtmMessage = function(message) {
             }
 
         }
-            
+
         }
     }    //Direct Message to Jarvis
     else if (firstChar === 'D') {
@@ -81,9 +81,11 @@ var handleRtmMessage = function(message) {
                  if (DEBUG) { console.log("DM Greeting w/o Command")}
                 rtm.sendMessage("No need to include initial commands in Direct Messages. Please enter command.", message.channel);
             }
+        } else {
+            parseCommand(message);
         }
-    } 
-    
+    }
+
 
 
 }
@@ -114,12 +116,12 @@ var parseCommand = function(message) {
         } else if (channelRegex.test(text)) {
             var key = text.replace(channelRegex, '$1');
             var channel = rtm.dataStore.getChannelGroupOrDMById(key);
-            
+
             rtm.sendMessage("Channel lookup: "+key/*+" "+JSON.stringify(channel)*/, message.channel);
         } else if (keyMessage(text, 'debug ')) {
             rtm.sendMessage("Debug: "+JSON.stringify(message), message.channel);
         } else {
-        	rtm.sendMessage("Slack command DNE", message.channel);
+            rtm.sendMessage("Slack command DNE", message.channel);
         }
     } else if (keyMessage(text, 'git ')) {
         rtm.sendMessage("Git commands: coming soon", message.channel);
@@ -174,7 +176,7 @@ var mockRTM = function() {
     rl.on('line', function (line) {
         var message = {
             'text': line,
-            'channel': 3
+            'channel': 'D'
         };
 
         // mocking rtm
@@ -201,19 +203,19 @@ var main = function() {
 
     rtm.on(RTM_EVENTS.MESSAGE, handleRtmMessage);
 
-	rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, function handleRTMAuthenticated() {
-  	  console.log('Jarvis is Online.');
-	});
-	
-	rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
-	   if (DEBUG) { console.log('Reaction added:', reaction)}
-	  rtm.sendMessage("Thanks "+rtm.dataStore.getUserById(reaction.user).name,reaction.item.channel);
-	});
+    rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, function handleRTMAuthenticated() {
+        console.log('Jarvis is Online.');
+    });
 
-	rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
-	   if (DEBUG) { console.log('Reaction removed:', reaction)}
-	  rtm.sendMessage(":unamused: :"+reaction.reaction+":",reaction.item.channel);
-	});
+    rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
+        if (DEBUG) { console.log('Reaction added:', reaction)}
+        rtm.sendMessage("Thanks "+rtm.dataStore.getUserById(reaction.user).name,reaction.item.channel);
+    });
+
+    rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
+        if (DEBUG) { console.log('Reaction removed:', reaction)}
+        rtm.sendMessage(":unamused: :"+reaction.reaction+":",reaction.item.channel);
+    });
 }
 
 if (DEBUG) {

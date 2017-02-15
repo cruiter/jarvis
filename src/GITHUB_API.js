@@ -59,7 +59,7 @@ exports.checkLatestPullRequest = function(){
 			return reject(err);
 		}
 		if (data) {
-			if (data.meta){
+			if (data.length == 0){
 			fulfill('There are no current open pull requests');
 			}
 			else {

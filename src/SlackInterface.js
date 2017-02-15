@@ -82,6 +82,9 @@ var handleRtmMessage = function(message) {
                 rtm.sendMessage("No need to include initial commands in Direct Messages. Please enter command.", message.channel);
             }
         }
+        else {
+            parseCommand(message);
+        }
     } 
     
 

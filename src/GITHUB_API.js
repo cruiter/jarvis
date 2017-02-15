@@ -59,13 +59,17 @@ exports.checkLatestPullRequest = function(){
 			return reject(err);
 		}
 		if (data) {
-			
-			fulfill('The Latest pull request is' + (JSON.stringify(data[0].title)));
+			if (data.meta){
+			fulfill('There are no current open pull requests');
+			}
+			else {
+				fulfill('The Latest pull request is' + (JSON.stringify(data[0].title)));
+			}
 		}	
 	});
 });
 }
-
+exports.checkLatestPullRequest();
 exports.checkLatestClosedPullRequest = function(){
 	if (exports.DEBUG) {console.log('checkLatestClosedPullRequest called.')}
 	return new Promise (function(fulfill,reject){

@@ -126,9 +126,8 @@ var parseCommand = function(message) {
         }
     } else if (keyMessage(text, 'git ')) {
 		text = text.substring('git '.length, text.length);
-			if (keyMessage(text, 'how many branches')) {
-				getNumberofFeatureBranches("jessicalynn", "jarvis");
-				handleMessagePromise(AWS.checkEC2Instance(text.substring('instance '.length, text.length)), message);
+			if (keyMessage(text, 'branches')) {
+				handleMessagePromise(GIT.checkNumberofFeatureBranches(), message);
 			  
     } else {
         rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);

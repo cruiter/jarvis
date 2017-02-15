@@ -20,7 +20,7 @@ var github = new GitHubApi({
 
 var greetings = require("./GitHub_API.js");
 
-exports.checkNumberofFeatureBranches = function(owner , repo) {
+exports.checkNumberofFeatureBranches = function() {
     if (exports.DEBUG) { console.log('checkNumberofFeatureBranches called.') }
     return new Promise(function(fulfill, reject) {
         github.repos.getBranches({owner:"jessicalynn",repo:"jarvis"}, function(err, data) {
@@ -41,7 +41,7 @@ exports.checkNumberofFeatureBranches = function(owner , repo) {
 //greetings.checkNumberofFeatureBranches();
 
 	
-exports.checkLastPushedtoBranchName = function( owner, repo , branch){
+exports.checkLastPushedtoBranchName = function(){
 	if (exports.DEBUG) {console.log('checkLastPushedtoBranchName called.')}
 	return new Promise (function(fulfill,reject){
 		github.repos.getBranch({ owner: "jessicalynn", repo: "jarvis" ,branch: "45-GitHub"},function(err, data) {
@@ -59,7 +59,7 @@ exports.checkLastPushedtoBranchName = function( owner, repo , branch){
 
 //greetings.checkLastPushedtoBranchName();
 
-exports.checkLatestPullRequest = function( owner, repo ){
+exports.checkLatestPullRequest = function(){
 	if (exports.DEBUG) {console.log('checkLatestPullRequest called.')}
 	return new Promise (function(fulfill,reject){
 		github.pullRequests.getAll({ owner: "jessicalynn" , repo: "jarvis" ,state: "open"},function(err, data) {
@@ -75,7 +75,7 @@ exports.checkLatestPullRequest = function( owner, repo ){
 }
 //greetings.checkLatestPullRequest();
 
-exports.checkLatestClosedPullRequest = function( owner, repo ){
+exports.checkLatestClosedPullRequest = function(){
 	if (exports.DEBUG) {console.log('checkLatestClosedPullRequest called.')}
 	return new Promise (function(fulfill,reject){
 		github.pullRequests.getAll({ owner: "jessicalynn" , repo: "jarvis", state: "closed"},function(err, data) {
@@ -92,7 +92,7 @@ exports.checkLatestClosedPullRequest = function( owner, repo ){
 
 //greetings.checkLatestClosedPullRequest();
 
-exports.checkLatestBranchUpdatgeTime = function( owner, repo ){
+exports.checkLatestBranchUpdatgeTime = function(){
 	if (exports.DEBUG) {console.log('checkLatestBranchUpdatgeTime called.')}
 	return new Promise (function(fulfill,reject){
 		github.repos.getBranch({ owner: "jessicalynn" , repo: "jarvis", branch: "45-GitHub"},function(err, data) {
@@ -108,7 +108,7 @@ exports.checkLatestBranchUpdatgeTime = function( owner, repo ){
 }
   //greetings.checkLatestBranchUpdatgeTime();
 
-exports.checkContributors = function( owner, repo ){
+exports.checkContributors = function(  ){
 	if (exports.DEBUG) {console.log('checkContributors called.')}
 	return new Promise (function(fulfill,reject){  
 		github.repos.getContributors({  owner : "jessicalynn", repo : "jarvis"},function(err, data) {

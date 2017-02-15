@@ -14,7 +14,7 @@ const MemoryDataStore = require('@slack/client').MemoryDataStore;
 const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
 const AWS = require('./AWS_API.js');
-const GIT = require('./gitHubModule.js');
+const GIT = require('./GITHUB_API.js');
 const token = process.env.SLACK_API_TOKEN || '';
 const DEBUG = process.env.DEBUG || false;
 AWS.DEBUG = DEBUG;
@@ -84,8 +84,6 @@ var handleRtmMessage = function(message) {
         } else {
             parseCommand(message);
         }
-    }
-
 
 
 }
@@ -124,7 +122,22 @@ var parseCommand = function(message) {
             rtm.sendMessage("Slack command DNE", message.channel);
         }
     } else if (keyMessage(text, 'git ')) {
-        rtm.sendMessage("Git commands: coming soon", message.channel);
+		text = text.substring('git '.length, text.length);
+			if (keyMessage(text, 'branches')) {
+				handleMessagePromise(GIT.checkNumberofFeatureBranches(), message);
+			}else if (keyMessage(text, 'pushed')){
+				handleMessagePromise(GIT.checkLastPushedtoBranchName(), message);
+			}else if (keyMessage(text, 'open pull')){
+				handleMessagePromise(GIT.checkLatestPullRequest(), message);
+			}else if (keyMessage(text, 'closed pull')){
+				handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
+			}else if (keyMessage(text, 'time')){
+			     handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(), message);	
+			}else if (keyMessage(text, 'contributors')){
+			     handleMessagePromise(GIT.checkContributors(), message);
+			}else {
+				    rtm.sendMessage("Git Command DNE", message.channel);
+			}
     } else {
         rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);
     }

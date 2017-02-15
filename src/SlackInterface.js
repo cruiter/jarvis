@@ -82,6 +82,9 @@ var handleRtmMessage = function(message) {
                 rtm.sendMessage("No need to include initial commands in Direct Messages. Please enter command.", message.channel);
             }
         }
+        else{
+            parseCommand(message);
+        }
     } 
     
 
@@ -123,10 +126,13 @@ var parseCommand = function(message) {
         }
     } else if (keyMessage(text, 'git ')) {
 		text = text.substring('git '.length, text.length);
-			if (keyMessage(text, 'how many branches')) {
-				getNumberofFeatureBranches("jessicalynn", "jarvis");
-				handleMessagePromise(AWS.checkEC2Instance(text.substring('instance '.length, text.length)), message);
-			  
+			if (keyMessage(text, 'branches')) {
+				handleMessagePromise(GIT.checkNumberofFeatureBranches(), message);
+				//handleMessagePromise(AWS.checkEC2Instance(text.substring('instance '.length, text.length)), message);
+            }else{
+                rtm.sendMessage("Git Command DNE", message.channel);
+            }
+            
     } else {
         rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);
     }

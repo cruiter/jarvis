@@ -134,10 +134,12 @@ var parseCommand = function(message) {
 				handleMessagePromise(GIT.checkLatestPullRequest(), message);
 			}else if (keyMessage(text, 'closed pull')){
 				handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
-			}else if (keyMessage(text, 'time'){
+			}else if (keyMessage(text, 'time')){
 			     handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(), message);	
-			}else if (keyMessage(text, 'contributors'){
+			}else if (keyMessage(text, 'contributors')){
 			     handleMessagePromise(GIT.checkContributors(), message);
+			}else {
+				    rtm.sendMessage("Git Command DNE", message.channel);
 			}
     } else {
         rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);

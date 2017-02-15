@@ -122,6 +122,7 @@ var parseCommand = function(message) {
         	rtm.sendMessage("Slack command DNE", message.channel);
         }
     } else if (keyMessage(text, 'git ')) {
+		text = text.substring('git '.length, text.length);
 			if (keyMessage(text, 'how many branches')) {
 				getNumberofFeatureBranches("jessicalynn", "jarvis");
 				handleMessagePromise(AWS.checkEC2Instance(text.substring('instance '.length, text.length)), message);

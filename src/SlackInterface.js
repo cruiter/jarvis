@@ -84,6 +84,7 @@ var handleRtmMessage = function(message) {
         } else {
             parseCommand(message);
         }
+    }
 
 
 }

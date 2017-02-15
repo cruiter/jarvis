@@ -18,8 +18,6 @@ var github = new GitHubApi({
     //timeout: 5000
 });
 
-var greetings = require("./GitHub_API.js");
-
 exports.checkNumberofFeatureBranches = function() {
     if (exports.DEBUG) { console.log('checkNumberofFeatureBranches called.') }
     return new Promise(function(fulfill, reject) {
@@ -32,14 +30,11 @@ exports.checkNumberofFeatureBranches = function() {
 					for (var item in data) {
 					count++;
 					}
-			console.log(count - 1); // -1 to account for master branch 
-			fulfill('The number is ' + count - 1 );
+			fulfill('The number of branches are ' + (count - 1) );
             } 
         });
     });
 }
-//greetings.checkNumberofFeatureBranches();
-
 	
 exports.checkLastPushedtoBranchName = function(){
 	if (exports.DEBUG) {console.log('checkLastPushedtoBranchName called.')}
@@ -49,15 +44,12 @@ exports.checkLastPushedtoBranchName = function(){
 			return reject(err);
 		}
 		if (data) {
-			console.log(JSON.stringify(data.commit.commit.author.name));
 			fulfill('The last person to push to branch is ' + (JSON.stringify(data.commit.commit.author.name)));
 		}
 
 	});
 });
 }
-
-//greetings.checkLastPushedtoBranchName();
 
 exports.checkLatestPullRequest = function(){
 	if (exports.DEBUG) {console.log('checkLatestPullRequest called.')}
@@ -67,13 +59,12 @@ exports.checkLatestPullRequest = function(){
 			return reject(err);
 		}
 		if (data) {
-			console.log(JSON.stringify(data[0].title));
+			
 			fulfill('The Latest pull request is' + (JSON.stringify(data[0].title)));
 		}	
 	});
 });
 }
-//greetings.checkLatestPullRequest();
 
 exports.checkLatestClosedPullRequest = function(){
 	if (exports.DEBUG) {console.log('checkLatestClosedPullRequest called.')}
@@ -83,14 +74,11 @@ exports.checkLatestClosedPullRequest = function(){
 			return reject(err);
 		}
 		if (data) {
-			console.log(JSON.stringify(data[0].title));
 			fulfill('The Latest Closed pull request is' + (JSON.stringify(data[0].title)));
 		}
 	});
  });
 }
-
-//greetings.checkLatestClosedPullRequest();
 
 exports.checkLatestBranchUpdatgeTime = function(){
 	if (exports.DEBUG) {console.log('checkLatestBranchUpdatgeTime called.')}
@@ -100,13 +88,12 @@ exports.checkLatestBranchUpdatgeTime = function(){
 			return reject(err);
 		}
 		if (data) {
-			console.log(JSON.stringify(data.commit.commit.author.date));
+			
 			fulfill('The Latest time branch was updated ' + (JSON.stringify(data.commit.commit.author.date)));
 		}
 	});
 });
 }
-  //greetings.checkLatestBranchUpdatgeTime();
 
 exports.checkContributors = function(  ){
 	if (exports.DEBUG) {console.log('checkContributors called.')}
@@ -124,12 +111,10 @@ exports.checkContributors = function(  ){
 			array.push(JSON.stringify(data[item].login));
 			}
 		}
-		console.log(array);
 		fulfill('Here are the contributors ' + array);
 		}
 	});
 });
 }
 
-//greetings.checkContributors();
- 
+

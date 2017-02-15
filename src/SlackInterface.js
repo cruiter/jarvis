@@ -128,7 +128,17 @@ var parseCommand = function(message) {
 		text = text.substring('git '.length, text.length);
 			if (keyMessage(text, 'branches')) {
 				handleMessagePromise(GIT.checkNumberofFeatureBranches(), message);
-			  
+			}else if (keyMessage(text, 'pushed')){
+				handleMessagePromise(GIT.checkLastPushedtoBranchName(), message);
+			}else if (keyMessage(text, 'open pull')){
+				handleMessagePromise(GIT.checkLatestPullRequest(), message);
+			}else if (keyMessage(text, 'closed pull')){
+				handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
+			}else if (keyMessage(text, 'time'){
+			     handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(), message);	
+			}else if (keyMessage(text, 'contributors'){
+			     handleMessagePromise(GIT.checkContributors(), message);
+			}
     } else {
         rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);
     }

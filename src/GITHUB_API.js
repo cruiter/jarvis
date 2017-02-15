@@ -33,7 +33,7 @@ exports.checkNumberofFeatureBranches = function(owner , repo) {
 					count++;
 					}
 			console.log(count - 1); // -1 to account for master branch 
-			fulfill('The number is ' + count - 1 );
+			fulfill('The number is ' + (count - 1) );
             } 
         });
     });

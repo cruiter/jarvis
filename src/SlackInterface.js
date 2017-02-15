@@ -125,11 +125,29 @@ var parseCommand = function(message) {
         	rtm.sendMessage("Slack command DNE", message.channel);
         }
     } else if (keyMessage(text, 'git ')) {
+        //branches, last pushed <branch>, latest pr, last closed pr, last change time <branch>, contributors
 		text = text.substring('git '.length, text.length);
 			if (keyMessage(text, 'branches')) {
 				handleMessagePromise(GIT.checkNumberofFeatureBranches(), message);
 				//handleMessagePromise(AWS.checkEC2Instance(text.substring('instance '.length, text.length)), message);
-            }else{
+            }else if(keyMessage(text, 'last pushed ')) {
+                text = text.substring('last pushed '.length, text.length);
+                 handleMessagePromise(GIT.checkLastPushedtoBranchName(), message);
+            }else if(keyMessage(text, 'latest pr ')) {
+                
+                handleMessagePromise(GIT.checkLatestPullRequest(), message);
+            }else if(keyMessage(text, 'last closed pr ')) {
+                
+                handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
+            }else if(keyMessage(text, 'last change time ')) {
+                text = text.substring('last change time '.length, text.length);
+                 handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(), message);
+            }else if(keyMessage(text, 'contributors ')) {
+                 handleMessagePromise(GIT.checkContributors(), message);
+            }
+            
+            
+            else{
                 rtm.sendMessage("Git Command DNE", message.channel);
             }
             

@@ -15,6 +15,7 @@ const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
 const AWS = require('./AWS_API.js');
 const GIT = require('./GITHUB_API.js');
+const MAINCTL = require('./mainController.js');
 const token = process.env.SLACK_API_TOKEN || '';
 const DEBUG = process.env.DEBUG || false;
 AWS.DEBUG = DEBUG;
@@ -139,8 +140,13 @@ var parseCommand = function(message) {
 			}else {
 				    rtm.sendMessage("Git Command DNE", message.channel);
 			}
-    } else {
-        rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);
+    }else if (keyMessage(text, 'help ')) {
+		
+        handleMessagePromise(MAINCTL.getActiveCommands(), message);
+
+    }
+    else {
+        rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with. use help command for list of commands", message.channel);
     }
 }
 

@@ -14,7 +14,7 @@ const MemoryDataStore = require('@slack/client').MemoryDataStore;
 const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
 const AWS = require('./AWS_API.js');
-const GIT = require('./gitHubModule.js');
+const GIT = require('./GITHUB_API.js');
 const token = process.env.SLACK_API_TOKEN || '';
 const DEBUG = process.env.DEBUG || false;
 AWS.DEBUG = DEBUG;
@@ -122,7 +122,10 @@ var parseCommand = function(message) {
         	rtm.sendMessage("Slack command DNE", message.channel);
         }
     } else if (keyMessage(text, 'git ')) {
-        rtm.sendMessage("Git commands: coming soon", message.channel);
+			if (keyMessage(text, 'how many branches')) {
+				getNumberofFeatureBranches("jessicalynn", "jarvis");
+				handleMessagePromise(AWS.checkEC2Instance(text.substring('instance '.length, text.length)), message);
+			  
     } else {
         rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with.", message.channel);
     }

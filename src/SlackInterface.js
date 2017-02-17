@@ -42,7 +42,6 @@ var handleRtmMessage = function(message) {
     var text = message.text;
     var firstChar = message.channel.substring(0, 1);
 
-    //var initCommands = /^(hey jarvis,? ?)|^(jarvis,? ?)/i; //DO NOT ADD GLOBAL FLAG
     var initCommands = new RegExp ("^(hey jarvis,? ?)|^(jarvis,? ?)|^(<@"+rtm.activeUserId+">,? ?)", "i");
 
     //Message is from a channel or group
@@ -132,9 +131,7 @@ var parseCommand = function(message) {
                 rtm.sendMessage(tResponse, message.channel);  
               }
             });
-            //var channel = rtm.dataStore.getChannelGroupOrDMById(key);
 
-            //rtm.sendMessage("Channel lookup: "+" "+JSON.stringify(channel), message.channel);
         } else if (keyMessage(text, 'list users ')) {
             slackWeb.users.list(function teamInfoCb(err, info) {
               if (err) {

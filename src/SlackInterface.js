@@ -10,6 +10,7 @@
  * Globals
  */
 const RtmClient = require('@slack/client').RtmClient;
+const WebClient = require('@slack/client').WebClient;
 const MemoryDataStore = require('@slack/client').MemoryDataStore;
 const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
@@ -18,10 +19,12 @@ const GIT = require('./GITHUB_API.js');
 const MAINCTL = require('./mainController.js');
 const token = process.env.SLACK_API_TOKEN || '';
 const DEBUG = process.env.DEBUG || false;
+
 AWS.DEBUG = DEBUG;
 
 
 var rtm;
+var slackWeb = new WebClient(token);
 var problemMessage = 'Looks like there was a problem processing your request.';
 var activeConv = [];
 
@@ -39,7 +42,8 @@ var handleRtmMessage = function(message) {
     var text = message.text;
     var firstChar = message.channel.substring(0, 1);
 
-    var initCommands = /^(hey jarvis,? ?)|^(jarvis,? ?)/i; //DO NOT ADD GLOBAL FLAG
+    //var initCommands = /^(hey jarvis,? ?)|^(jarvis,? ?)/i; //DO NOT ADD GLOBAL FLAG
+    var initCommands = new RegExp ("^(hey jarvis,? ?)|^(jarvis,? ?)|^(<@"+rtm.activeUserId+">,? ?)", "i");
 
     //Message is from a channel or group
     if (firstChar === 'C' | firstChar === 'G') {
@@ -115,9 +119,61 @@ var parseCommand = function(message) {
             rtm.sendMessage("User lookup: "+user.real_name/*+" "+JSON.stringify(user)*/, message.channel);
         } else if (channelRegex.test(text)) {
             var key = text.replace(channelRegex, '$1');
-            var channel = rtm.dataStore.getChannelGroupOrDMById(key);
+            slackWeb.channels.info(key,function teamInfoCb(err, info) {
+              if (err) {
+                console.log('Error:', err);
+              } else {
+                  var tResponse = "Channel Lookup: <#" +info.channel.id+"> Members: ";
+                  var members = info.channel.members;
+                  for (var i = 0; i < members.length; i++){
+                      tResponse += rtm.dataStore.getUserById(members[i]).name + " ";
+                  }
+                  
+                rtm.sendMessage(tResponse, message.channel);  
+              }
+            });
+            //var channel = rtm.dataStore.getChannelGroupOrDMById(key);
 
-            rtm.sendMessage("Channel lookup: "+key/*+" "+JSON.stringify(channel)*/, message.channel);
+            //rtm.sendMessage("Channel lookup: "+" "+JSON.stringify(channel), message.channel);
+        } else if (keyMessage(text, 'list users ')) {
+            slackWeb.users.list(function teamInfoCb(err, info) {
+              if (err) {
+                console.log('Error:', err);
+              } else {
+                var userList = info.members
+                var tMessage = "There users on this team are: ";
+                for(var i = 0; i < userList.length; i++){
+                    tMessage += userList[i].real_name+" ("+userList[i].name+"), "
+                }
+                rtm.sendMessage(tMessage, message.channel);  
+              }
+            });
+            
+        } else if (keyMessage(text, 'whoami ')) {
+                rtm.sendMessage("Jarvis Info: <@"+rtm.dataStore.getUserById(rtm.activeUserId).name+"> on team: " + rtm.dataStore.getTeamById(rtm.activeTeamId).name, message.channel);  
+            
+        } else if (keyMessage(text, 'whos online ')) {
+            slackWeb.users.list({presence:true}, function teamInfoCb(err, info) {
+              if (err) {
+                console.log('Error:', err);
+              } else {
+                  var tResponse = "";
+                  for(var i = 0; i < info.members.length;i++){
+                     if(info.members[i].presence && info.members[i].presence == "active"){
+                         if(info.members[i].real_name != "")
+                             {
+                                 tResponse += info.members[i].profile.first_name + " "
+                             }else{
+                                 tResponse += info.members[i].name + " "
+                             }
+                             
+                  }
+                  }
+                  
+                rtm.sendMessage("Online: "+tResponse, message.channel);  
+              }
+            });
+            
         } else if (keyMessage(text, 'debug ')) {
             rtm.sendMessage("Debug: "+JSON.stringify(message), message.channel);
         } else {
@@ -229,14 +285,25 @@ var main = function() {
 
     rtm.on(RTM_EVENTS.REACTION_ADDED, function handleRtmReactionAdded(reaction) {
         if (DEBUG) { console.log('Reaction added:', reaction)}
-        rtm.sendMessage("Thanks "+rtm.dataStore.getUserById(reaction.user).name,reaction.item.channel);
+        if(reaction.item_user == rtm.activeUserId){
+        rtm.sendMessage("Thanks "+rtm.dataStore.getUserById(reaction.user).name,reaction.item.channel);}
     });
 
     rtm.on(RTM_EVENTS.REACTION_REMOVED, function handleRtmReactionRemoved(reaction) {
         if (DEBUG) { console.log('Reaction removed:', reaction)}
-        rtm.sendMessage(":unamused: :"+reaction.reaction+":",reaction.item.channel);
+        if(reaction.item_user == rtm.activeUserId){
+        rtm.sendMessage(":unamused: :"+reaction.reaction+":",reaction.item.channel);}
     });
 }
+process.on('SIGINT', function() {
+    if(rtm.connected){
+      rtm.disconnect();  
+      console.log("\nJarvis is going offline.")
+    }
+    
+    process.exit();
+});
+
 
 if (DEBUG) {
     mockRTM();

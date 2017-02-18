@@ -76,10 +76,7 @@ var handleRtmMessage = function(message) {
             MAINCTL.parseCommand(message);
         }
     }
-
-
 }
-
 
  exports.handleMessagePromise = function(promise, message) {
     promise.then(function (resp) {
@@ -199,10 +196,10 @@ var main = function() {
 }
 process.on('SIGINT', function() {
     if(rtm.connected){
-      rtm.disconnect();  
+      rtm.disconnect();
       console.log("\nJarvis is going offline.")
     }
-    
+
     process.exit();
 });
 

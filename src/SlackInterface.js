@@ -137,8 +137,9 @@ exports.getActiveConv = function (user, channel){
  */
 /*
 Sample inputs:
-aws describe ec2 instance i-0a681657adec3b3ee
-aws describe ec2
+aws check ec2 instance i-0a681657adec3b3ee
+aws check ec2
+aws check number of instances
  */
 var mockRTM = function() {
     var readline = require('readline');

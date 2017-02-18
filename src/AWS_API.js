@@ -8,6 +8,24 @@ var PING = require('ping');
 
 
 /**
+ * Promise wrapper for EC2 callback functions
+ * @param {String} functionName     EC2 function
+ * @param {Object} EC2              EC2 instance
+ * @param {JSONObject} params       parameters to send
+ */
+var EC2Promise = function(ec2, functionName, params) {
+    return new Promise(function(fulfill, reject) {
+        ec2[functionName](params, function(err,data) {
+            if (err) {
+                reject(err);
+            } else {
+                fulfill(data);
+            }
+        });
+    });
+}
+
+/**
  * Checks the status of a specific EC2 Instance
  * @param  {String} instanceId the resource ID
  * @return {Promise}
@@ -19,10 +37,8 @@ exports.checkEC2Instance = function(instanceId) {
         var params = {
             InstanceIds: [ instanceId ]
         }
-        EC2.describeInstances(params, function(err, data) {
-            if (err) {
-                return reject(err);
-            }
+        EC2Promise(EC2, 'describeInstances', params)
+        .then(function (data) {
             var nonRunningInstances = [];
             var blockingPromises = [];
 
@@ -38,6 +54,8 @@ exports.checkEC2Instance = function(instanceId) {
                     fulfill('The instance ' + instanceId + ' looks good!');
                 }
             });
+        }, function (err) {
+            return reject(err);
         });
     });
 }
@@ -69,6 +87,18 @@ var pingCheck = function(instance, nonRunningInstances) {
 }
 
 /**
+ * Gets the resource id based on a tag value
+ * @param  {String} tagName  name of the tag
+ * @param  {String} tagValue value of the tag to match
+ * @return {String}          the retrieved resource id
+ */
+var getResourceIdFromTag = function(tagName, tagValue) {
+    return new Promise(function (fulfill, reject) {
+        reject('This is not implemented yet');
+    });
+}
+
+/**
  * Checks the status of all of the EC2 Instances
  * @return {Promise}
  */
@@ -77,13 +107,9 @@ exports.checkEC2 = function() {
 
     return new Promise(function(fulfill, reject) {
         //query for the status of all instances
-        EC2.describeInstances({}, function(err, data) {
-            if (err) {
-                return reject(err);
-            }
-
+        EC2Promise(EC2, 'describeInstances', {})
+        .then(function (data) {
             var instances = data.Reservations[0].Instances;
-            instances.push({'InstanceId': 'localhost', 'PublicIpAddress': '127.0.0.1', 'State': {'Name': 'running'}});
             var nonRunningInstances = [];
             var blockingPromises = [];
 
@@ -112,6 +138,8 @@ exports.checkEC2 = function() {
                     fulfill(message);
                 }
             });
+        }, function (err) {
+            return reject(err);
         });
     });
 }
@@ -124,11 +152,8 @@ exports.checkNumInstances = function () {
     if (exports.DEBUG) { console.log('checkNumInstances called.') }
 
     return new Promise(function(fulfill, reject) {
-        EC2.describeInstances({}, function(err, data) {
-            if (err) {
-                return reject(err);
-            }
-
+        EC2Promise(EC2, 'describeInstances', {})
+        .then(function (data) {
             var instances = data.Reservations[0].Instances;
             var resp = '';
             var num = 0;
@@ -150,6 +175,8 @@ exports.checkNumInstances = function () {
             }
 
             fulfill(resp);
+        }, function (err) {
+            return reject(err);
         });
     });
 }

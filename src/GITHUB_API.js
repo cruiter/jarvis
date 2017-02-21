@@ -2,6 +2,7 @@
  * This is a library of GitHub_API calls for Jarvis
  */
 var GitHubApi = require("github");
+var dateformat = require("dateformat");
 
 var github = new GitHubApi({
     // optional may be using for future use oAuath 
@@ -84,16 +85,19 @@ exports.checkLatestClosedPullRequest = function(){
  });
 }
 
-exports.checkLatestBranchUpdatgeTime = function(){
+exports.checkLatestBranchUpdatgeTime = function(qBranch){
 	if (exports.DEBUG) {console.log('checkLatestBranchUpdatgeTime called.')}
+    if(!qBranch || qBranch == ""){
+        qBranch = "master";
+    }
 	return new Promise (function(fulfill,reject){
-		github.repos.getBranch({ owner: "jessicalynn" , repo: "jarvis", branch: "45-GitHub"},function(err, data) {
+		github.repos.getBranch({ owner: "jessicalynn" , repo: "jarvis", branch: qBranch},function(err, data) {
 		if (err){
 			return reject(err);
 		}
 		if (data) {
 			
-			fulfill('The Latest time branch was updated ' + (JSON.stringify(data.commit.commit.author.date)));
+			fulfill('The Latest time '+qBranch+' was updated ' + dateformat(data.commit.commit.author.date,"dddd, mmmm dS, yyyy, h:MM:ss tt Z"));
 		}
 	});
 });

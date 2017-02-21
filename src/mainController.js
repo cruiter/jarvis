@@ -54,7 +54,8 @@ exports.parseCommand = function(message) {
 			}else if (keyMessage(text, 'closed pull')){
 				SLACK.handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
 			}else if (keyMessage(text, 'time')){
-			     SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(), message);	
+                text = text.substring('time '.length, text.length);
+			     SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);	
 			}else if (keyMessage(text, 'contributors')){
 			     SLACK.handleMessagePromise(GIT.checkContributors(), message);
 			}else {

@@ -54,19 +54,11 @@ var handleRtmMessage = function(message) {
                 parseCommand(message);
             }else{
                  if (DEBUG) { console.log("Greeting w/o Command")}
-                var temp = new Conversation(message.user, message.channel);
-                activeConv.push(temp);
+                startConversation("", message);
                 rtm.sendMessage("yes?", message.channel);
             }
         } else{
-            var convIndex = getActiveConv(message.user,message.channel);
-            if (typeof convIndex == "number"){
-                console.log(""+activeConv[convIndex].cmdForResp + message.text);
-                message.text = activeConv[convIndex].cmdForResp + message.text;
-              parseCommand(message);
-              activeConv.splice(convIndex,1);
-            }
-
+            continueConversation(message);
         }
     }    //Direct Message to Jarvis
     else if (firstChar === 'D') {
@@ -103,7 +95,7 @@ var parseCommand = function(message) {
         } else if (keyMessage(text, 'check number of instances ')) {
             handleMessagePromise(AWS.checkNumInstances(), message);
         } else {
-            rtm.sendMessage(rtm.dataStore.getUserById(message.user).name+" I'm sorry, this isn't an AWS command I'm familiar with.", message.channel);
+            rtm.sendMessage("AWS command does not exist", message.channel);
         }
     } else if (keyMessage(text, 'slack ')) {
         text = text.substring('slack '.length, text.length);
@@ -124,7 +116,7 @@ var parseCommand = function(message) {
         } else if (keyMessage(text, 'debug ')) {
             rtm.sendMessage("Debug: "+JSON.stringify(message), message.channel);
         } else {
-            rtm.sendMessage("Slack command DNE", message.channel);
+            rtm.sendMessage("Slack command does not exist", message.channel);
         }
     } else if (keyMessage(text, 'git ')) {
 		text = text.substring('git '.length, text.length);
@@ -141,43 +133,33 @@ var parseCommand = function(message) {
 			}else if (keyMessage(text, 'contributors')){
 			     handleMessagePromise(GIT.checkContributors(), message);
 			}else {
-				    rtm.sendMessage("Git Command does not exist", message.channel);
+				rtm.sendMessage("Git Command does not exist", message.channel);
 			}
     }else if (keyMessage(text, 'help ')) {
-		
         handleMessagePromise(MAINCTL.getActiveCommands(), message);
-
     }
+    //SAMPLE CONVERSATION CONSTRUCT
     else if (keyMessage(text, 'wait ')) {
 		text = text.substring('wait '.length, text.length);
-        
         if(text.length == 0){
-            var temp = new Conversation(message.user, message.channel);
-            temp.cmdForResp = 'wait -1 ';
-            activeConv.push(temp);
+            startConversation("wait -1 ",message);
             rtm.sendMessage("I'm Listening for another command", message.channel);
-        }else if (keyMessage(text, 'wait -1 ')){
-            text = text.substring('wait -1 '.length, text.length);
-            console.log("i got to waiting.")
-            if (keyMessage(text, 'don\'t wait')){
-                var convIndex = getActiveConv(message.user,message.channel);
-                    if (convIndex){
-                        activeConv.splice(i,1);
-                        rtm.sendMessage("Okay, I wont.", message.channel);
-                    }
+        }else if (keyMessage(text, '-1 ')){
+            text = text.substring('-1 '.length, text.length);
+            if (keyMessage(text, 'don\'t wait ')){
+                rtm.sendMessage(endConversation(message)?"Okay, I wont.":"Didn't work.", message.channel);
             } else {
-                var word = /\w+/i;
-                var num = /\d+/i;
+                var word = /[a-z]+/i;
+                var num = /[0-9]+/i;
                 if(word.test(text)){
-                    rtm.sendMessage("Weeerddd.", message.channel);
-                }else if(num.text(text)){
+                    rtm.sendMessage("Letters.", message.channel);
+                }else if(num.test(text)){
                     rtm.sendMessage("Numbers.", message.channel);
                 }else{
-                    rtm.sendMessage("meh.", message.channel);
+                    rtm.sendMessage("Neither letters nor numbers.", message.channel);
                 }
             }
         }
-
     }
     else {
         rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with. use `help` command for list of commands", message.channel);
@@ -204,6 +186,33 @@ function handleMessagePromise(promise, message) {
         console.log(err);
     });
 }
+function startConversation (respCmd, message){
+    var temp = new Conversation(message.user, message.channel);
+    temp.cmdForResp = respCmd;
+    activeConv.push(temp);
+    if (DEBUG) { console.log("Started Conversatoion: " + message.user + " "+respCmd+". Number of Convos: "+activeConv.length);}
+}
+function continueConversation (message){
+    var convIndex = getActiveConv(message.user,message.channel);
+    if (typeof convIndex == "number"){
+        if (DEBUG) { console.log("Response Altered Command: "+activeConv[convIndex].cmdForResp + message.text);}
+        message.text = activeConv[convIndex].cmdForResp + message.text;
+        endConversation(message);
+        parseCommand(message);
+    }
+    
+}
+function endConversation (message){
+    var convIndex = getActiveConv(message.user,message.channel);
+    if (typeof convIndex == "number"){
+        activeConv.splice(convIndex,1);
+        if (DEBUG) { console.log("ending Conversation:" + message.user+ ". Number of Convos: "+activeConv.length);}
+        return true;
+    }
+    else{
+        return false;
+    }
+}
 
 function Conversation(user, channel){
     this.user = user;
@@ -220,7 +229,7 @@ function getActiveConv(user, channel){
             return i;
         }
 
-        }
+    }
     return undefined;
 }
 /*******************************************************************************

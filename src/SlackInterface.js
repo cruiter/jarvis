@@ -14,13 +14,12 @@ const WebClient = require('@slack/client').WebClient;
 const MemoryDataStore = require('@slack/client').MemoryDataStore;
 const RTM_EVENTS = require('@slack/client').RTM_EVENTS;
 const CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS;
-const AWS = require('./AWS_API.js');
-const GIT = require('./GITHUB_API.js');
 const MAINCTL = require('./mainController.js');
 const token = process.env.SLACK_API_TOKEN || '';
 const DEBUG = process.env.DEBUG || false;
 
-AWS.DEBUG = DEBUG;
+MAINCTL.DEBUG = DEBUG;
+
 
 
 var rtm;
@@ -51,14 +50,14 @@ var handleRtmMessage = function(message) {
             if(text.length > 0){
                 if (DEBUG) { console.log("Greeting + Command")}
                 message.text = text;
-                parseCommand(message);
+                MAINCTL.parseCommand(message);
             }else{
                  if (DEBUG) { console.log("Greeting w/o Command")}
-                startConversation("", message);
+                module.exports.startConversation("", message);
                 rtm.sendMessage("yes?", message.channel);
             }
         } else{
-            continueConversation(message);
+            module.exports.continueConversation(message);
         }
     }    //Direct Message to Jarvis
     else if (firstChar === 'D') {
@@ -68,117 +67,21 @@ var handleRtmMessage = function(message) {
                  if (DEBUG) { console.log("DM Greeting + Command")}
                 rtm.sendMessage("No need for initial commands in Direct Messages.", message.channel);
                 message.text = text;
-                parseCommand(message);
+                MAINCTL.parseCommand(message);
             }else{
                  if (DEBUG) { console.log("DM Greeting w/o Command")}
                 rtm.sendMessage("No need to include initial commands in Direct Messages. Please enter command.", message.channel);
             }
         } else {
-            parseCommand(message);
+            MAINCTL.parseCommand(message);
         }
     }
 
 
 }
-var parseCommand = function(message) {
-    var text = message.text;
-     if (DEBUG) { console.log("Parsing Command: "+text)}
-    if (keyMessage(text, 'aws ')) {
-        text = text.substring('aws '.length, text.length);
-        if (keyMessage(text, 'check ec2 ')) {
-            text = text.substring('check ec2 '.length, text.length);
-            if (keyMessage(text, 'instance ')) {
-                handleMessagePromise(AWS.checkEC2Instance(text.substring('instance '.length, text.length)), message);
-            } else {
-                handleMessagePromise(AWS.checkEC2(), message);
-            }
-        } else if (keyMessage(text, 'check number of instances ')) {
-            handleMessagePromise(AWS.checkNumInstances(), message);
-        } else {
-            rtm.sendMessage("AWS command does not exist", message.channel);
-        }
-    } else if (keyMessage(text, 'slack ')) {
-        text = text.substring('slack '.length, text.length);
-        var userRegex = /<@([A-Z|1-9]+.)>/g;
-        var channelRegex = /<?#([A-Z0-9]+)(\|\w+>)?/g;
-        if (userRegex.test(text)) {
-            var user = rtm.dataStore.getUserById(text.replace(userRegex, '$1'));
-            handleMessagePromise(slackUserName(user), message);
-        } else if (channelRegex.test(text)) {
-            var key = text.replace(channelRegex, '$1');
-            handleMessagePromise(slackChannelInfo(key), message);
-        } else if (keyMessage(text, 'list users ')) {
-            handleMessagePromise(slackTeamList(), message);
-        } else if (keyMessage(text, 'whoami ')) {
-            handleMessagePromise(slackWhoAmI(), message);
-        } else if (keyMessage(text, 'whos online ')) {
-            handleMessagePromise(slackWhoseOnline(), message);
-        } else if (keyMessage(text, 'debug ')) {
-            rtm.sendMessage("Debug: "+JSON.stringify(message), message.channel);
-        } else {
-            rtm.sendMessage("Slack command does not exist", message.channel);
-        }
-    } else if (keyMessage(text, 'git ')) {
-		text = text.substring('git '.length, text.length);
-			if (keyMessage(text, 'branches')) {
-				handleMessagePromise(GIT.checkNumberofFeatureBranches(), message);
-			}else if (keyMessage(text, 'pushed')){
-				handleMessagePromise(GIT.checkLastPushedtoBranchName(), message);
-			}else if (keyMessage(text, 'open pull')){
-				handleMessagePromise(GIT.checkLatestPullRequest(), message);
-			}else if (keyMessage(text, 'closed pull')){
-				handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
-			}else if (keyMessage(text, 'time')){
-			     handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(), message);	
-			}else if (keyMessage(text, 'contributors')){
-			     handleMessagePromise(GIT.checkContributors(), message);
-			}else {
-				rtm.sendMessage("Git Command does not exist", message.channel);
-			}
-    }else if (keyMessage(text, 'help ')) {
-        handleMessagePromise(MAINCTL.getActiveCommands(), message);
-    }
-    //SAMPLE CONVERSATION CONSTRUCT
-    else if (keyMessage(text, 'wait ')) {
-		text = text.substring('wait '.length, text.length);
-        if(text.length == 0){
-            startConversation("wait -1 ",message);
-            rtm.sendMessage("I'm Listening for another command", message.channel);
-        }else if (keyMessage(text, '-1 ')){
-            text = text.substring('-1 '.length, text.length);
-            if (keyMessage(text, 'don\'t wait ')){
-                rtm.sendMessage(endConversation(message)?"Okay, I wont.":"Didn't work.", message.channel);
-            } else {
-                var word = /[a-z]+/i;
-                var num = /[0-9]+/i;
-                if(word.test(text)){
-                    rtm.sendMessage("Letters.", message.channel);
-                }else if(num.test(text)){
-                    rtm.sendMessage("Numbers.", message.channel);
-                }else{
-                    rtm.sendMessage("Neither letters nor numbers.", message.channel);
-                }
-            }
-        }
-    }
-    else {
-        rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with. use `help` command for list of commands", message.channel);
-    }
-}
 
-/*******************************************************************************
- * Helper functions
- */
 
-function keyMessage(text, key) {
-    var temptext = text + ' ';
-    if (temptext.length >= key.length && temptext.substring(0, key.length).toLowerCase() === key) {
-        return true;
-    }
-    return false;
-}
-
-function handleMessagePromise(promise, message) {
+ exports.handleMessagePromise = function(promise, message) {
     promise.then(function (resp) {
         rtm.sendMessage(resp, message.channel);
     }, function (err) {
@@ -186,24 +89,24 @@ function handleMessagePromise(promise, message) {
         console.log(err);
     });
 }
-function startConversation (respCmd, message){
+exports.startConversation = function (respCmd, message){
     var temp = new Conversation(message.user, message.channel);
     temp.cmdForResp = respCmd;
     activeConv.push(temp);
     if (DEBUG) { console.log("Started Conversatoion: " + message.user + " "+respCmd+". Number of Convos: "+activeConv.length);}
 }
-function continueConversation (message){
-    var convIndex = getActiveConv(message.user,message.channel);
+exports.continueConversation = function (message){
+    var convIndex = module.exports.getActiveConv(message.user,message.channel);
     if (typeof convIndex == "number"){
         if (DEBUG) { console.log("Response Altered Command: "+activeConv[convIndex].cmdForResp + message.text);}
         message.text = activeConv[convIndex].cmdForResp + message.text;
         endConversation(message);
-        parseCommand(message);
+        MAINCTL.parseCommand(message);
     }
     
 }
 function endConversation (message){
-    var convIndex = getActiveConv(message.user,message.channel);
+    var convIndex = module.exports.getActiveConv(message.user,message.channel);
     if (typeof convIndex == "number"){
         activeConv.splice(convIndex,1);
         if (DEBUG) { console.log("ending Conversation:" + message.user+ ". Number of Convos: "+activeConv.length);}
@@ -219,7 +122,7 @@ function Conversation(user, channel){
     this.channel = channel;
     this.cmdForResp = "";
 }
-function getActiveConv(user, channel){
+exports.getActiveConv = function (user, channel){
     for (var i = 0, len = activeConv.length; i < len; i++){
         if(activeConv[i].user == user && activeConv[i].channel == channel){
              if (DEBUG) { 
@@ -320,7 +223,7 @@ if (DEBUG) {
  * Checks the status of all of the EC2 Instances
  * @return {Promise}
  */
-var slackWhoseOnline = function() {
+exports.slackWhoseOnline = function() {
     if (exports.DEBUG) { console.log('Slack Web API Called, Who is Online Command') }
 
     return new Promise(function(fulfill, reject) {
@@ -351,7 +254,7 @@ var slackWhoseOnline = function() {
  * Checks the status of all of the EC2 Instances
  * @return {Promise}
  */
-var slackTeamList = function() {
+exports.slackTeamList = function() {
     if (exports.DEBUG) { console.log('Slack Web API Called, Team Member List Command') }
 
     return new Promise(function(fulfill, reject) {
@@ -374,7 +277,7 @@ var slackTeamList = function() {
  * Checks the status of all of the EC2 Instances
  * @return {Promise}
  */
-var slackWhoAmI = function() {
+exports.slackWhoAmI = function() {
     if (exports.DEBUG) { console.log('Slack Web API Called, Team Member List Command') }
 
     return new Promise(function(fulfill, reject) {
@@ -386,7 +289,7 @@ var slackWhoAmI = function() {
  * Checks the status of all of the EC2 Instances
  * @return {Promise}
  */
-var slackChannelInfo = function(channelName) {
+exports.slackChannelInfo = function(channelName) {
     if (exports.DEBUG) { console.log('Slack Web API Called, Team Member List Command') }
 
     return new Promise(function(fulfill, reject) {
@@ -410,10 +313,14 @@ var slackChannelInfo = function(channelName) {
  * Checks the status of all of the EC2 Instances
  * @return {Promise}
  */
-var slackUserName = function(nameToLook) {
+exports.slackUserName = function(capturedID) {
+    var userID = rtm.dataStore.getUserById(capturedID);
     if (exports.DEBUG) { console.log('Slack Web API Called, Team Member List Command') }
 
     return new Promise(function(fulfill, reject) {
-                fulfill("User lookup: "+nameToLook.real_name/*+" "+JSON.stringify(user)*/);  
+                fulfill("User lookup: "+userID.real_name/*+" "+JSON.stringify(user)*/);  
     });
+}
+exports.sendMessage = function(text, message) {
+    rtm.sendMessage(text,message.channel);
 }

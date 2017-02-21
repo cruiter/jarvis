@@ -47,8 +47,11 @@ exports.parseCommand = function(message) {
 		text = text.substring('git '.length, text.length);
 			if (keyMessage(text, 'branches')) {
 				SLACK.handleMessagePromise(GIT.checkNumberofFeatureBranches(), message);
+			}else if (keyMessage(text, 'list branches')) {
+				SLACK.handleMessagePromise(GIT.listBranches(), message);
 			}else if (keyMessage(text, 'pushed')){
-				SLACK.handleMessagePromise(GIT.checkLastPushedtoBranchName(), message);
+                text = text.substring('pushed '.length, text.length);
+				SLACK.handleMessagePromise(GIT.checkLastPushedtoBranchName(text), message);
 			}else if (keyMessage(text, 'open pull')){
 				SLACK.handleMessagePromise(GIT.checkLatestPullRequest(), message);
 			}else if (keyMessage(text, 'closed pull')){
@@ -106,15 +109,23 @@ aws (Cloud - Amazon Web Services) \n \
 \tcheck number of instances \n \
 \n \
 git (GitHub) \n\
-\tbranches \n\
+\tbranches\n\
+\tlist branches \n\
+\tpushed [branch-name]\n\
 \topen pull \n\
 \tclosed pull \n\
-\ttime\n\
+\ttime [branch-name]\n\
 \tcontributors\n\
 \n\
 slack \n\
 \t#(Channel Name)\n\
-\t@(Username)");
+\t@(Username)\n\
+\twhoami\n\
+\twhos online\n\
+\tlist users\n\
+\twait\n");
+                    
+        
             
     });
  }

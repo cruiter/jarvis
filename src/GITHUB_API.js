@@ -36,16 +36,38 @@ exports.checkNumberofFeatureBranches = function() {
         });
     });
 }
-	
-exports.checkLastPushedtoBranchName = function(){
+exports.listBranches = function() {
+    if (exports.DEBUG) { console.log('listBranches called.') }
+    return new Promise(function(fulfill, reject) {
+        github.repos.getBranches({owner:"jessicalynn",repo:"jarvis"}, function(err, data) {
+            if (err) {
+                return reject(err);
+            }
+            if (data) {
+                var rBuilder = "";
+					for (var item in data) {
+                        if(data[item].name != undefined){
+					       rBuilder += data[item].name  + "\n";
+                        }
+					}
+			fulfill('The branches are \n' + rBuilder );
+            } 
+        });
+    });
+}	
+exports.checkLastPushedtoBranchName = function(qBranch){
 	if (exports.DEBUG) {console.log('checkLastPushedtoBranchName called.')}
+    
+    if(!qBranch || qBranch == ""){
+        qBranch = "master";
+    }
 	return new Promise (function(fulfill,reject){
-		github.repos.getBranch({ owner: "jessicalynn", repo: "jarvis" ,branch: "45-GitHub"},function(err, data) {
+		github.repos.getBranch({ owner: "jessicalynn", repo: "jarvis" ,branch: qBranch},function(err, data) {
 		if (err){
 			return reject(err);
 		}
 		if (data) {
-			fulfill('The last person to push to branch is ' + (JSON.stringify(data.commit.commit.author.name)));
+			fulfill('The last person to push to '+qBranch+' is ' + data.commit.commit.author.name);
 		}
 
 	});
@@ -61,7 +83,7 @@ exports.checkLatestPullRequest = function(){
 		}
 		if (data) {
 			if (data.length == 0){
-			fulfill('There are no current open pull requests');
+			    fulfill('There are no current open pull requests');
 			}
 			else {
 				fulfill('The Latest pull request is' + (JSON.stringify(data[0].title)));

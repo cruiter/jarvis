@@ -59,17 +59,13 @@ var handleRtmMessage = function(message) {
                 rtm.sendMessage("yes?", message.channel);
             }
         } else{
-            //Check Active Conversations
-        for (var i = 0, len = activeConv.length; i < len; i++){
-            if(activeConv[i].user == message.user && activeConv[i].channel == message.channel){
-                 if (DEBUG) { console.log("Conversation");
-                rtm.sendMessage("processing command .. conversation continued", message.channel);}
-                parseCommand(message);
-                activeConv.splice(i,1);
-                break;
+            var convIndex = getActiveConv(message.user,message.channel);
+            if (typeof convIndex == "number"){
+                console.log(""+activeConv[convIndex].cmdForResp + message.text);
+                message.text = activeConv[convIndex].cmdForResp + message.text;
+              parseCommand(message);
+              activeConv.splice(convIndex,1);
             }
-
-        }
 
         }
     }    //Direct Message to Jarvis
@@ -115,62 +111,16 @@ var parseCommand = function(message) {
         var channelRegex = /<?#([A-Z0-9]+)(\|\w+>)?/g;
         if (userRegex.test(text)) {
             var user = rtm.dataStore.getUserById(text.replace(userRegex, '$1'));
-            rtm.sendMessage("User lookup: "+user.real_name/*+" "+JSON.stringify(user)*/, message.channel);
+            handleMessagePromise(slackUserName(user), message);
         } else if (channelRegex.test(text)) {
             var key = text.replace(channelRegex, '$1');
-            slackWeb.channels.info(key,function teamInfoCb(err, info) {
-              if (err) {
-                console.log('Error:', err);
-              } else {
-                  var tResponse = "Channel Lookup: <#" +info.channel.id+"> Members: ";
-                  var members = info.channel.members;
-                  for (var i = 0; i < members.length; i++){
-                      tResponse += rtm.dataStore.getUserById(members[i]).name + " ";
-                  }
-                  
-                rtm.sendMessage(tResponse, message.channel);  
-              }
-            });
-
+            handleMessagePromise(slackChannelInfo(key), message);
         } else if (keyMessage(text, 'list users ')) {
-            slackWeb.users.list(function teamInfoCb(err, info) {
-              if (err) {
-                console.log('Error:', err);
-              } else {
-                var userList = info.members
-                var tMessage = "There users on this team are: ";
-                for(var i = 0; i < userList.length; i++){
-                    tMessage += userList[i].real_name+" ("+userList[i].name+"), "
-                }
-                rtm.sendMessage(tMessage, message.channel);  
-              }
-            });
-            
+            handleMessagePromise(slackTeamList(), message);
         } else if (keyMessage(text, 'whoami ')) {
-                rtm.sendMessage("Jarvis Info: <@"+rtm.dataStore.getUserById(rtm.activeUserId).name+"> on team: " + rtm.dataStore.getTeamById(rtm.activeTeamId).name, message.channel);  
-            
+            handleMessagePromise(slackWhoAmI(), message);
         } else if (keyMessage(text, 'whos online ')) {
-            slackWeb.users.list({presence:true}, function teamInfoCb(err, info) {
-              if (err) {
-                console.log('Error:', err);
-              } else {
-                  var tResponse = "";
-                  for(var i = 0; i < info.members.length;i++){
-                     if(info.members[i].presence && info.members[i].presence == "active"){
-                         if(info.members[i].real_name != "")
-                             {
-                                 tResponse += info.members[i].profile.first_name + " "
-                             }else{
-                                 tResponse += info.members[i].name + " "
-                             }
-                             
-                  }
-                  }
-                  
-                rtm.sendMessage("Online: "+tResponse, message.channel);  
-              }
-            });
-            
+            handleMessagePromise(slackWhoseOnline(), message);
         } else if (keyMessage(text, 'debug ')) {
             rtm.sendMessage("Debug: "+JSON.stringify(message), message.channel);
         } else {
@@ -191,15 +141,46 @@ var parseCommand = function(message) {
 			}else if (keyMessage(text, 'contributors')){
 			     handleMessagePromise(GIT.checkContributors(), message);
 			}else {
-				    rtm.sendMessage("Git Command DNE", message.channel);
+				    rtm.sendMessage("Git Command does not exist", message.channel);
 			}
     }else if (keyMessage(text, 'help ')) {
 		
         handleMessagePromise(MAINCTL.getActiveCommands(), message);
 
     }
+    else if (keyMessage(text, 'wait ')) {
+		text = text.substring('wait '.length, text.length);
+        
+        if(text.length == 0){
+            var temp = new Conversation(message.user, message.channel);
+            temp.cmdForResp = 'wait -1 ';
+            activeConv.push(temp);
+            rtm.sendMessage("I'm Listening for another command", message.channel);
+        }else if (keyMessage(text, 'wait -1 ')){
+            text = text.substring('wait -1 '.length, text.length);
+            console.log("i got to waiting.")
+            if (keyMessage(text, 'don\'t wait')){
+                var convIndex = getActiveConv(message.user,message.channel);
+                    if (convIndex){
+                        activeConv.splice(i,1);
+                        rtm.sendMessage("Okay, I wont.", message.channel);
+                    }
+            } else {
+                var word = /\w+/i;
+                var num = /\d+/i;
+                if(word.test(text)){
+                    rtm.sendMessage("Weeerddd.", message.channel);
+                }else if(num.text(text)){
+                    rtm.sendMessage("Numbers.", message.channel);
+                }else{
+                    rtm.sendMessage("meh.", message.channel);
+                }
+            }
+        }
+
+    }
     else {
-        rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with. use help command for list of commands", message.channel);
+        rtm.sendMessage("I'm sorry, this isn't a command I'm familiar with. use `help` command for list of commands", message.channel);
     }
 }
 
@@ -227,9 +208,21 @@ function handleMessagePromise(promise, message) {
 function Conversation(user, channel){
     this.user = user;
     this.channel = channel;
-    this.active = false;
+    this.cmdForResp = "";
 }
+function getActiveConv(user, channel){
+    for (var i = 0, len = activeConv.length; i < len; i++){
+        if(activeConv[i].user == user && activeConv[i].channel == channel){
+             if (DEBUG) { 
+                console.log("Conversation");
+                rtm.sendMessage("processing command .. conversation continued", message.channel);
+             }
+            return i;
+        }
 
+        }
+    return undefined;
+}
 /*******************************************************************************
  * Test stuff
  */
@@ -308,3 +301,110 @@ if (DEBUG) {
     main();
 }
 
+
+
+
+/*******************************************************************************
+ * SLACK API CALLS
+ */
+/**
+ * Checks the status of all of the EC2 Instances
+ * @return {Promise}
+ */
+var slackWhoseOnline = function() {
+    if (exports.DEBUG) { console.log('Slack Web API Called, Who is Online Command') }
+
+    return new Promise(function(fulfill, reject) {
+        //query for the status of all instances
+        slackWeb.users.list({presence:true}, function teamInfoCb(err, info) {
+             if (err) {
+                return reject(err);
+              } else {
+                  var tResponse = "";
+                  for(var i = 0; i < info.members.length;i++){
+                     if(info.members[i].presence && info.members[i].presence == "active"){
+                         if(info.members[i].real_name != "")
+                             {
+                                 tResponse += info.members[i].profile.first_name + " "
+                             }else{
+                                 tResponse += info.members[i].name + " "
+                             }
+                             
+                  }
+                  }
+                  
+                fulfill("Online: "+tResponse);  
+              }
+            });
+    });
+}
+/**
+ * Checks the status of all of the EC2 Instances
+ * @return {Promise}
+ */
+var slackTeamList = function() {
+    if (exports.DEBUG) { console.log('Slack Web API Called, Team Member List Command') }
+
+    return new Promise(function(fulfill, reject) {
+        slackWeb.users.list(function teamInfoCb(err, info) {
+              if (err) {
+                return reject(err);
+              } else {
+                var userList = info.members
+                var tMessage = "There users on this team are: ";
+                for(var i = 0; i < userList.length; i++){
+                    tMessage += userList[i].real_name+" ("+userList[i].name+"), "
+                }
+                fulfill(tMessage);  
+              }
+            });
+        //query for the status of all instances
+    });
+}
+/**
+ * Checks the status of all of the EC2 Instances
+ * @return {Promise}
+ */
+var slackWhoAmI = function() {
+    if (exports.DEBUG) { console.log('Slack Web API Called, Team Member List Command') }
+
+    return new Promise(function(fulfill, reject) {
+                fulfill("Jarvis Info: <@"+rtm.dataStore.getUserById(rtm.activeUserId).name+"> on team: " + rtm.dataStore.getTeamById(rtm.activeTeamId).name);  
+    });
+}
+
+/**
+ * Checks the status of all of the EC2 Instances
+ * @return {Promise}
+ */
+var slackChannelInfo = function(channelName) {
+    if (exports.DEBUG) { console.log('Slack Web API Called, Team Member List Command') }
+
+    return new Promise(function(fulfill, reject) {
+        slackWeb.channels.info(channelName,function teamInfoCb(err, info) {
+              if (err) {
+                return reject(err);
+              } else {
+                  var tResponse = "Channel Lookup: <#" +info.channel.id+"> Members: ";
+                  var members = info.channel.members;
+                  for (var i = 0; i < members.length; i++){
+                      tResponse += rtm.dataStore.getUserById(members[i]).name + " ";
+                  }
+                  
+                fulfill(tResponse);  
+              }
+            });
+        //query for the status of all instances
+    });
+}
+/**
+ * Checks the status of all of the EC2 Instances
+ * @return {Promise}
+ */
+var slackUserName = function(nameToLook) {
+    if (exports.DEBUG) { console.log('Slack Web API Called, Team Member List Command') }
+
+    return new Promise(function(fulfill, reject) {
+                fulfill("User lookup: "+nameToLook.real_name/*+" "+JSON.stringify(user)*/);  
+    });
+}

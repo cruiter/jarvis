@@ -43,13 +43,14 @@ var checkEC2InstanceSub = function(instance) {
         if (instance.State.Name === 'running') {
             var pingPromise = pingCheck(instance, nonRunningInstances);
             blockingPromises.push(pingPromise);
+        } else {
+            nonRunningInstances.push(instance.InstanceId + name);
         }
-        console.log(instance.Tags);
         Promise.all(blockingPromises).then(function () {
             if (nonRunningInstances.length > 0) {
-                fulfill('Looks like ' + instance.InstanceId + name + ' has a problem. Better check it out.');
+                fulfill('Looks like ' + nonRunningInstances[0] + ' has a problem. Better check it out.');
             } else {
-                fulfill('The instance ' + instance.InstanceId + name+ ' looks good!');
+                fulfill('The instance ' + instance.InstanceId + name + ' looks good!');
             }
         });
     });
@@ -122,7 +123,9 @@ var pingCheck = function(instance, nonRunningInstances) {
         .then(function (response) {
             // if there is a problem pinging...
             if (!response.alive) {
-                nonRunningInstances.push(instance.InstanceId);
+                var name = getNameTag(instance.Tags);
+                name = name ? ' ('+name+')' : '';
+                nonRunningInstances.push(instance.InstanceId + name);
             }
             fulfill();
         });
@@ -159,7 +162,9 @@ exports.checkEC2 = function() {
             //look for all of the instances that are not running
             for (var i = instances.length - 1; i >= 0; i--) {
                 if (instances[i].State.Name !== 'running') {
-                    nonRunningInstances.push(instances[i].InstanceId);
+                    var name = getNameTag(instances[i].Tags);
+                    name = name ? ' ('+name+')' : '';
+                    nonRunningInstances.push(instances[i].InstanceId + name);
                 } else {
                     var pingPromise = pingCheck(instances[i], nonRunningInstances);
                     blockingPromises.push(pingPromise);

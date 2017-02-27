@@ -25,6 +25,36 @@ var EC2Promise = function(ec2, functionName, params) {
     });
 }
 
+var getNameTag = function (tags) {
+    for (var i = tags.length - 1; i >= 0; i--) {
+        if (tags[i].Key === 'Name') {
+            return tags[i].Value;
+        }
+    }
+}
+
+var checkEC2InstanceSub = function(instance) {
+    return new Promise(function(fulfill) {
+        var nonRunningInstances = [];
+        var blockingPromises = [];
+        var name = getNameTag(instance.Tags);
+        name = name ? ' ('+name+')' : '';
+
+        if (instance.State.Name === 'running') {
+            var pingPromise = pingCheck(instance, nonRunningInstances);
+            blockingPromises.push(pingPromise);
+        }
+        console.log(instance.Tags);
+        Promise.all(blockingPromises).then(function () {
+            if (nonRunningInstances.length > 0) {
+                fulfill('Looks like ' + instance.InstanceId + name + ' has a problem. Better check it out.');
+            } else {
+                fulfill('The instance ' + instance.InstanceId + name+ ' looks good!');
+            }
+        });
+    });
+}
+
 /**
  * Checks the status of a specific EC2 Instance
  * @param  {String} instanceId the resource ID
@@ -36,26 +66,39 @@ exports.checkEC2Instance = function(instanceId) {
     return new Promise(function(fulfill, reject) {
         var params = {
             InstanceIds: [ instanceId ]
-        }
+        };
         EC2Promise(EC2, 'describeInstances', params)
         .then(function (data) {
-            var nonRunningInstances = [];
-            var blockingPromises = [];
-
-            if (data.Reservations[0].Instances[0].State.Name === 'running') {
-                var pingPromise = pingCheck(data.Reservations[0].Instances[0], nonRunningInstances);
-                blockingPromises.push(pingPromise);
-            }
-
-            Promise.all(blockingPromises).then(function () {
-                if (nonRunningInstances.length > 0) {
-                    fulfill('Looks like ' + instanceId + ' has a problem. Better check it out.');
-                } else {
-                    fulfill('The instance ' + instanceId + ' looks good!');
-                }
+            checkEC2InstanceSub(data.Reservations[0].Instances[0]).then(function (resp) {
+                fulfill(resp);
             });
         }, function (err) {
-            return reject(err);
+            // if there is no instance found
+            if (err.code === 'InvalidInstanceID.NotFound') {
+                fulfill('There is no instance with the instanceId: ' + instanceId);
+            } if (err.code === 'InvalidInstanceID.Malformed') {
+                var params = {
+                    Filters: [{
+                        Name:  'tag:Name',
+                        Values: [instanceId]
+                    }]
+                };
+
+                EC2Promise(EC2, 'describeInstances', params)
+                .then(function (data) {
+                    if (data.Reservations[0] === undefined) {
+                        fulfill('There is no instance named: ' + instanceId);
+                    } else {
+                        checkEC2InstanceSub(data.Reservations[0].Instances[0]).then(function (resp) {
+                            fulfill(resp);
+                        });
+                    }
+                }, function (err) {
+                    reject(err.message);
+                });
+            } else {
+                reject(err.message);
+            }
         });
     });
 }

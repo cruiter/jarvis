@@ -36,6 +36,7 @@ exports.checkNumberofFeatureBranches = function() {
         });
     });
 }
+
 exports.listBranches = function() {
     if (exports.DEBUG) { console.log('listBranches called.') }
     return new Promise(function(fulfill, reject) {
@@ -55,6 +56,7 @@ exports.listBranches = function() {
         });
     });
 }
+
 exports.checkLastPushedtoBranchName = function(qBranch){
     if (exports.DEBUG) {console.log('checkLastPushedtoBranchName called.')}
 
@@ -63,34 +65,35 @@ exports.checkLastPushedtoBranchName = function(qBranch){
     }
     return new Promise (function(fulfill,reject){
         github.repos.getBranch({ owner: "jessicalynn", repo: "jarvis" ,branch: qBranch},function(err, data) {
-        if (err){
-            return reject(err);
-        }
-        if (data) {
-            fulfill('The last person to push to '+qBranch+' is ' + data.commit.commit.author.name);
-        }
+            if (err){
+                return reject(err);
+            }
+            if (data) {
+                fulfill('The last person to push to '+qBranch+' is ' + data.commit.commit.author.name);
+            }
+        });
     });
-});
 }
 
 exports.checkLatestPullRequest = function(){
     if (exports.DEBUG) {console.log('checkLatestPullRequest called.')}
     return new Promise (function(fulfill,reject){
         github.pullRequests.getAll({ owner: "jessicalynn" , repo: "jarvis" ,state: "open"},function(err, data) {
-        if (err){
-            return reject(err);
-        }
-        if (data) {
-            if (data.length == 0){
-                fulfill('There are no current open pull requests');
+            if (err){
+                return reject(err);
             }
-            else {
-                fulfill('The Latest pull request is' + (JSON.stringify(data[0].title)));
+            if (data) {
+                if (data.length == 0){
+                    fulfill('There are no current open pull requests');
+                }
+                else {
+                    fulfill('The Latest pull request is' + (JSON.stringify(data[0].title)));
+                }
             }
-        }
+        });
     });
-});
 }
+
 exports.checkLatestPullRequest();
 exports.checkLatestClosedPullRequest = function(){
     if (exports.DEBUG) {console.log('checkLatestClosedPullRequest called.')}
@@ -113,14 +116,14 @@ exports.checkLatestBranchUpdatgeTime = function(qBranch){
     }
     return new Promise (function(fulfill,reject){
         github.repos.getBranch({ owner: "jessicalynn" , repo: "jarvis", branch: qBranch},function(err, data) {
-        if (err){
-            return reject(err);
-        }
-        if (data) {
-            fulfill('The Latest time '+qBranch+' was updated ' + dateformat(data.commit.commit.author.date,"dddd, mmmm dS, yyyy, h:MM:ss tt Z"));
-        }
+            if (err){
+                return reject(err);
+            }
+            if (data) {
+                fulfill('The Latest time '+qBranch+' was updated ' + dateformat(data.commit.commit.author.date,"dddd, mmmm dS, yyyy, h:MM:ss tt Z"));
+            }
+        });
     });
-});
 }
 
 exports.checkContributors = function(  ){

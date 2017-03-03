@@ -26,6 +26,7 @@ exports.checkNumberofFeatureBranches = function() {
             if (err) {
                 return reject(err);
             }
+            data = data.data;
             if (data) {
                 var count = 0
                 for (var item in data) {
@@ -44,6 +45,7 @@ exports.listBranches = function() {
             if (err) {
                 return reject(err);
             }
+            data = data.data;
             if (data) {
                 var rBuilder = "";
                 for (var item in data) {
@@ -68,6 +70,7 @@ exports.checkLastPushedtoBranchName = function(qBranch){
             if (err){
                 return reject(err);
             }
+            data = data.data;
             if (data) {
                 fulfill('The last person to push to '+qBranch+' is ' + data.commit.commit.author.name);
             }
@@ -86,8 +89,7 @@ exports.checkLatestPullRequest = function(){
             if (data) {
                 if (data.length == 0){
                     fulfill('There are no current open pull requests');
-                }
-                else {
+                } else {
                     fulfill('The Latest pull request is' + (JSON.stringify(data[0].title)));
                 }
             }
@@ -103,6 +105,7 @@ exports.checkLatestClosedPullRequest = function(){
             if (err){
                 return reject(err);
             }
+            data = data.data;
             if (data) {
                 fulfill('The Latest Closed pull request is' + (JSON.stringify(data[0].title)));
             }
@@ -120,6 +123,7 @@ exports.checkLatestBranchUpdatgeTime = function(qBranch){
             if (err){
                 return reject(err);
             }
+            data = data.data;
             if (data) {
                 fulfill('The Latest time '+qBranch+' was updated ' + dateformat(data.commit.commit.author.date,"dddd, mmmm dS, yyyy, h:MM:ss tt Z"));
             }
@@ -134,6 +138,7 @@ exports.checkContributors = function(  ){
             if (err){
                 return reject(err);
             }
+            data = data.data;
             if (data) {
                 var array = [];
                 for (var item in data) {

@@ -21,7 +21,6 @@ const DEBUG = process.env.DEBUG || false;
 MAINCTL.DEBUG = DEBUG;
 
 
-
 var rtm;
 var slackWeb = new WebClient(token);
 var problemMessage = 'Looks like there was a problem processing your request.';
@@ -34,8 +33,6 @@ var mainController = require('./mainController');
 /*******************************************************************************
  * Functions
  */
-
-
 var handleRtmMessage = function(message) {
     if (DEBUG) { console.log('Message:', message) }
     var text = message.text;
@@ -76,10 +73,7 @@ var handleRtmMessage = function(message) {
             MAINCTL.parseCommand(message);
         }
     }
-
-
 }
-
 
  exports.handleMessagePromise = function(promise, message) {
     promise.then(function (resp) {
@@ -89,12 +83,14 @@ var handleRtmMessage = function(message) {
         console.log(err);
     });
 }
+
 exports.startConversation = function (respCmd, message){
     var temp = new Conversation(message.user, message.channel);
     temp.cmdForResp = respCmd;
     activeConv.push(temp);
     if (DEBUG) { console.log("Started Conversatoion: " + message.user + " "+respCmd+". Number of Convos: "+activeConv.length);}
 }
+
 exports.continueConversation = function (message){
     var convIndex = module.exports.getActiveConv(message.user,message.channel);
     if (typeof convIndex == "number"){
@@ -103,8 +99,9 @@ exports.continueConversation = function (message){
         endConversation(message);
         MAINCTL.parseCommand(message);
     }
-    
+
 }
+
 function endConversation (message){
     var convIndex = module.exports.getActiveConv(message.user,message.channel);
     if (typeof convIndex == "number"){
@@ -122,10 +119,11 @@ function Conversation(user, channel){
     this.channel = channel;
     this.cmdForResp = "";
 }
+
 exports.getActiveConv = function (user, channel){
     for (var i = 0, len = activeConv.length; i < len; i++){
         if(activeConv[i].user == user && activeConv[i].channel == channel){
-             if (DEBUG) { 
+             if (DEBUG) {
                 console.log("Conversation");
                 rtm.sendMessage("processing command .. conversation continued", message.channel);
              }
@@ -135,13 +133,15 @@ exports.getActiveConv = function (user, channel){
     }
     return undefined;
 }
+
 /*******************************************************************************
  * Test stuff
  */
 /*
 Sample inputs:
-aws describe ec2 instance i-0a681657adec3b3ee
-aws describe ec2
+aws check ec2 instance i-0a681657adec3b3ee
+aws check ec2
+aws check number of instances
  */
 var mockRTM = function() {
     var readline = require('readline');
@@ -170,7 +170,6 @@ var mockRTM = function() {
     });
 }
 
-
 /*******************************************************************************
  * main()
  */
@@ -197,23 +196,21 @@ var main = function() {
         rtm.sendMessage(":unamused: :"+reaction.reaction+":",reaction.item.channel);}
     });
 }
+
 process.on('SIGINT', function() {
     if(rtm.connected){
-      rtm.disconnect();  
+      rtm.disconnect();
       console.log("\nJarvis is going offline.")
     }
-    
+
     process.exit();
 });
-
 
 if (DEBUG) {
     mockRTM();
 } else {
     main();
 }
-
-
 
 
 /*******************************************************************************
@@ -241,15 +238,16 @@ exports.slackWhoseOnline = function() {
                              }else{
                                  tResponse += info.members[i].name + " "
                              }
-                             
+
                   }
                   }
-                  
-                fulfill("Online: "+tResponse);  
+
+                fulfill("Online: "+tResponse);
               }
             });
     });
 }
+
 /**
  * Checks the status of all of the EC2 Instances
  * @return {Promise}
@@ -267,12 +265,13 @@ exports.slackTeamList = function() {
                 for(var i = 0; i < userList.length; i++){
                     tMessage += userList[i].real_name+" ("+userList[i].name+"), "
                 }
-                fulfill(tMessage);  
+                fulfill(tMessage);
               }
             });
         //query for the status of all instances
     });
 }
+
 /**
  * Checks the status of all of the EC2 Instances
  * @return {Promise}
@@ -281,7 +280,7 @@ exports.slackWhoAmI = function() {
     if (exports.DEBUG) { console.log('Slack Web API Called, Team Member List Command') }
 
     return new Promise(function(fulfill, reject) {
-                fulfill("Jarvis Info: <@"+rtm.dataStore.getUserById(rtm.activeUserId).name+"> on team: " + rtm.dataStore.getTeamById(rtm.activeTeamId).name);  
+                fulfill("Jarvis Info: <@"+rtm.dataStore.getUserById(rtm.activeUserId).name+"> on team: " + rtm.dataStore.getTeamById(rtm.activeTeamId).name);
     });
 }
 
@@ -302,13 +301,14 @@ exports.slackChannelInfo = function(channelName) {
                   for (var i = 0; i < members.length; i++){
                       tResponse += rtm.dataStore.getUserById(members[i]).name + " ";
                   }
-                  
-                fulfill(tResponse);  
+
+                fulfill(tResponse);
               }
             });
         //query for the status of all instances
     });
 }
+
 /**
  * Checks the status of all of the EC2 Instances
  * @return {Promise}
@@ -318,7 +318,7 @@ exports.slackUserName = function(capturedID) {
     if (exports.DEBUG) { console.log('Slack Web API Called, Team Member List Command') }
 
     return new Promise(function(fulfill, reject) {
-                fulfill("User lookup: "+userID.real_name/*+" "+JSON.stringify(user)*/);  
+                fulfill("User lookup: "+userID.real_name/*+" "+JSON.stringify(user)*/);
     });
 }
 exports.sendMessage = function(text, message) {

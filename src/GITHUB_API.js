@@ -82,6 +82,7 @@ exports.checkLatestPullRequest = function(){
             if (err){
                 return reject(err);
             }
+            data = data.data;
             if (data) {
                 if (data.length == 0){
                     fulfill('There are no current open pull requests');
@@ -136,7 +137,7 @@ exports.checkContributors = function(  ){
             if (data) {
                 var array = [];
                 for (var item in data) {
-                    if ((JSON.stringify(data[item].login)) !== null) else {
+                    if ((JSON.stringify(data[item].login)) !== null) {
                         array.push(JSON.stringify(data[item].login));
                     }
                 }

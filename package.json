@@ -23,6 +23,7 @@
     "@slack/client": "^3.8.1",
      "aws-sdk": "*",
      "ping": "*",
-     "github": "*"
+     "github": "*",
+     "dateformat": "*"
   }
 }

@@ -19,6 +19,7 @@ var github = new GitHubApi({
     //timeout: 5000
 });
 
+
 exports.checkNumberofFeatureBranches = function() {
     if (exports.DEBUG) { console.log('checkNumberofFeatureBranches called.') }
     return new Promise(function(fulfill, reject) {
@@ -97,7 +98,6 @@ exports.checkLatestPullRequest = function(){
     });
 }
 
-exports.checkLatestPullRequest();
 exports.checkLatestClosedPullRequest = function(){
     if (exports.DEBUG) {console.log('checkLatestClosedPullRequest called.')}
     return new Promise (function(fulfill,reject){
@@ -108,6 +108,44 @@ exports.checkLatestClosedPullRequest = function(){
             data = data.data;
             if (data) {
                 fulfill('The Latest Closed pull request is' + (JSON.stringify(data[0].title)));
+            }
+        });
+    });
+}
+
+exports.getAllPullRequests = function(){
+    if (exports.DEBUG) {console.log('getAllPullRequests called.')}
+    return new Promise (function(fulfill,reject){
+        github.pullRequests.getAll({ owner: "jessicalynn" , repo: "jarvis"},function(err, data) {
+            if (err){
+                return reject(err);
+            }
+            data = data.data;
+            if (data) {
+				var array = [];
+				var count = 1;
+				for(var item in data ){
+				
+		array.push('#'+ count + ' '+'USER: ' + (JSON.stringify(data[item].user.login)) + ' TITLE: '  + (JSON.stringify(data[item].title)) + ' NUMBER: '   + (JSON.stringify(data[item].number))+  '\n');	
+		count++;
+					
+				}
+                fulfill('List Of Open Pull Requests: \n'  + array);
+            }
+        });
+    });
+}
+
+exports.mergePullRequest = function(input){
+    if (exports.DEBUG) {console.log('mergePullRequest called.')}
+    return new Promise (function(fulfill,reject){
+        github.pullRequests.merge({ owner: "jessicalynn" , repo: "jarvis", number: input},function(err, data) {
+            if (err){
+                return reject(err);
+            }
+            data = data.data;
+            if (data) {
+                fulfill(JSON.stringify(data));
             }
         });
     });

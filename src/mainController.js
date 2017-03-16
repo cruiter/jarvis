@@ -65,7 +65,25 @@ exports.parseCommand = function(message) {
 				SLACK.sendMessage("Git Command does not exist", message);
 			}
     }else if (keyMessage(text, 'help ')) {
-        SLACK.handleMessagePromise(getActiveCommands(), message);
+    	//Help documentation.
+    	text = text.substring('help '.length, text.length);
+    	if (keyMessage(text, 'aws ')){
+    		text = text.substring('aws '.length, text.length);
+    		if(keyMessage(text, 'check ec2 ')){
+    			SLACK.sendMessage("The 'check ec2' command checks the status of the current ec2 instance.", message);
+    		}
+    		else if(keyMessage(text, 'check number of instances ')){
+    			SLACK.sendMessage("The 'check number of instances' command checks the total number of ec2 instances and the number currently running.", message);
+    		})
+    		else{
+    			SLACK.sendMessage("The AWS (Amazon Web Services) commands I currently know are:\n \
+    					\tcheck ec2 [instance] \n \
+    					\tcheck number of instances \n", message);
+    		}
+    	}
+    	else{
+    		SLACK.handleMessagePromise(getActiveCommands(), message);
+    	}
     }
     //SAMPLE CONVERSATION CONSTRUCT
     else if (keyMessage(text, 'wait ')) {
@@ -123,7 +141,8 @@ slack \n\
 \twhoami\n\
 \twhos online\n\
 \tlist users\n\
-\twait\n");
+\twait\n\n\
+For information on a command, type 'help' plus the name of the command.\n");
                     
         
             

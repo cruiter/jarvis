@@ -19,6 +19,99 @@ var github = new GitHubApi({
     //timeout: 5000
 });
 
+//github.authenticate({
+ //   type: "oauth",
+ //   key: "ffa9b5a00b7deea280ac",
+ //   secret: "5875604c29f07a887e99143aee8d111d52e2c78c"
+
+//})
+
+github.authenticate({
+    type: "basic",
+    username: "vbhagat",
+    password: "Clubhouse1"
+}, function (err,data){
+	if (err){
+		console.log(err);
+	}
+	if (data){
+		console.log(data);
+	}
+});
+
+
+var crypto = require('crypto'),
+    algorithm = 'aes-256-ctr',
+    password = 'd6F3Efeq';
+
+function encrypt(text){
+  var cipher = crypto.createCipher(algorithm,password)
+  var crypted = cipher.update(text,'utf8','hex')
+  crypted += cipher.final('hex');
+  return crypted;
+}
+ 
+function decrypt(text){
+  var decipher = crypto.createDecipher(algorithm,password)
+  var dec = decipher.update(text,'hex','utf8')
+  dec += decipher.final('utf8');
+  return dec;
+}
+ 
+var hw = encrypt("Clubhouse1")
+// outputs hello world
+console.log((hw));
+console.log(decrypt(hw));
+
+
+//github.pullRequests.merge({ ... });
+
+//github.authorization.getOrCreateAuthorizationForApp({client_secret:"5875604c29f07a887e99143aee8d111d52e2c78c" }, function(err,data){
+//	if (err) {
+//		  console.log(err)
+//		return (err);
+//	}
+//	if (data){
+//		console.log(data);
+//		return (data);
+//	}
+//	});
+	
+/*	github.authorization.check({client_secret:"5875604c29f07a887e99143aee8d111d52e2c78c",client_id:"ffa9b5a00b7deea280ac" }, function(err,data){
+	if (err) {
+  console.log(err)	
+	return (err);
+	}
+	if (data){
+		console.log(data);
+		return (data);
+	}
+	});
+	
+	github.authorization.getAll({ }, function(err,data){
+	if (err) {
+		  console.log(err)
+		return (err);
+	}
+	if (data){
+		console.log(data);
+		return (data);
+	}
+	});
+	
+	github.authorization.create({
+  client_secret:"5875604c29f07a887e99143aee8d111d52e2c78c",
+  client_id:"ffa9b5a00b7deea280ac"
+}, function(err, res) {
+    if (err) {
+        console.log(err)
+		//save and use res.token as in the Oauth process above from now on
+    }
+});
+	
+
+*/
+
 exports.checkNumberofFeatureBranches = function() {
     if (exports.DEBUG) { console.log('checkNumberofFeatureBranches called.') }
     return new Promise(function(fulfill, reject) {
@@ -112,6 +205,18 @@ exports.checkLatestClosedPullRequest = function(){
         });
     });
 }
+
+github.pullRequests.getAll({ owner: "jessicalynn" , repo: "jarvis" },function(err, data) {
+            if (err){
+               console.log(err);
+            }
+            data = data.data;
+            if (data) {
+                console.log("here")
+				console.log(data);
+            }
+        });
+
 
 exports.checkLatestBranchUpdatgeTime = function(qBranch){
     if (exports.DEBUG) {console.log('checkLatestBranchUpdatgeTime called.')}

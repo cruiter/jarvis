@@ -70,15 +70,68 @@ exports.parseCommand = function(message) {
     	if (keyMessage(text, 'aws ')){
     		text = text.substring('aws '.length, text.length);
     		if(keyMessage(text, 'check ec2 ')){
-    			SLACK.sendMessage("The 'check ec2' command checks the status of the current ec2 instance.", message);
+    			SLACK.sendMessage("The 'aws check ec2 [instance]' command checks the status of a given ec2 instance.", message);
     		}
     		else if(keyMessage(text, 'check number of instances ')){
-    			SLACK.sendMessage("The 'check number of instances' command checks the total number of ec2 instances and the number currently running.", message);
-    		})
+    			SLACK.sendMessage("The 'aws check number of instances' command checks the total number of ec2 instances and the number currently running.", message);
+    		}
     		else{
     			SLACK.sendMessage("The AWS (Amazon Web Services) commands I currently know are:\n \
     					\tcheck ec2 [instance] \n \
     					\tcheck number of instances \n", message);
+    		}
+    	}
+    	else if (keyMessage(text, 'git ')){
+    		text = text.substring('git '.length, text.length);
+			if (keyMessage(text, 'branches')) {
+				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+			}else if (keyMessage(text, 'list branches')) {
+				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+			}else if (keyMessage(text, 'pushed')){
+				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+			}else if (keyMessage(text, 'open pull')){
+				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+			}else if (keyMessage(text, 'closed pull')){
+				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+			}else if (keyMessage(text, 'time')){
+				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+			}else if (keyMessage(text, 'contributors')){
+				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+			}
+    		else{
+    			SLACK.sendMessage("The Git (GitHub) commands I currently know are:\n\
+    					\tbranches\n\
+    					\tlist branches \n\
+    					\tpushed [branch-name]\n\
+    					\topen pull \n\
+    					\tclosed pull \n\
+    					\ttime [branch-name]\n\
+    					\tcontributors\n", message);
+    		}
+    	}
+    	else if (keyMessage(text, 'slack ')){
+    		text = text.substring('slack '.length, text.length);
+            if (keyMessage(text, 't# ')) {
+            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+            } else if (keyMessage(text, 't@ ')) {
+            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+            } else if (keyMessage(text, 'list users ')) {
+            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+            } else if (keyMessage(text, 'whoami ')) {
+            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+            } else if (keyMessage(text, 'whos online ')) {
+            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+            } else if (keyMessage(text, 'wait ')) {
+            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+            }
+    		else{
+    			SLACK.sendMessage("The Slack  commands I currently know are:\n\
+    					\t#(Channel Name)\n\
+    					\t@(Username)\n\
+    					\twhoami\n\
+    					\twhos online\n\
+    					\tlist users\n\
+    					\twait\n", message);
     		}
     	}
     	else{

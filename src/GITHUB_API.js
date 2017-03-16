@@ -19,6 +19,18 @@ var github = new GitHubApi({
     //timeout: 5000
 });
 
+github.authenticate({
+    type: "basic",
+    username: "vbhagat",
+    password: "Asustudnet1"
+}, function (err,data){
+	if (err){
+		console.log(err);
+	}
+	if (data){
+		console.log(data);
+	}
+});
 
 exports.checkNumberofFeatureBranches = function() {
     if (exports.DEBUG) { console.log('checkNumberofFeatureBranches called.') }
@@ -138,14 +150,14 @@ exports.getAllPullRequests = function(){
 
 exports.mergePullRequest = function(input){
     if (exports.DEBUG) {console.log('mergePullRequest called.')}
-    return new Promise (function(fulfill,reject){
-        github.pullRequests.merge({ owner: "jessicalynn" , repo: "jarvis", number: input},function(err, data) {
+	return new Promise (function(fulfill,reject){
+        github.pullRequests.merge({ owner: "jessicalynn" , repo: "jarvis", number: Number(input)},function(err, data) {
             if (err){
                 return reject(err);
             }
             data = data.data;
             if (data) {
-                fulfill(JSON.stringify(data));
+                fulfill(JSON.stringify(data.message));
             }
         });
     });

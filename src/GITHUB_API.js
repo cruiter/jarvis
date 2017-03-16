@@ -22,7 +22,7 @@ var github = new GitHubApi({
 github.authenticate({
     type: "basic",
     username: "vbhagat",
-    password: "Asustudnet1"
+    password: "Asustudent1"
 }, function (err,data){
 	if (err){
 		console.log(err);

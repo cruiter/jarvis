@@ -61,6 +61,9 @@ exports.parseCommand = function(message) {
 			     SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);	
 			}else if (keyMessage(text, 'contributors')){
 			     SLACK.handleMessagePromise(GIT.checkContributors(), message);
+			}else if (keyMessage(text, 'repos')) {
+				 text = text.substring('repos '.length, text.length);
+				 SLACK.handleMessagePromise(GIT.getRepos(text), message);	 
 			}else {
 				SLACK.sendMessage("Git Command does not exist", message);
 			}

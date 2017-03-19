@@ -1,1 +1,1 @@
-TEST A
+TEST

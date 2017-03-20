@@ -204,7 +204,6 @@ exports.checkContributors = function(  ){
 
 exports.getRepos = function(qUser){
     if (exports.DEBUG) {console.log('getRepos called.')}
-
     return new Promise (function(fulfill,reject){
         github.repos.getAll({  username:qUser  },function(err, data) {
             if (err){
@@ -212,10 +211,9 @@ exports.getRepos = function(qUser){
             }
             data = data.data;
             if (data) {
-                	 var array = [];
+                	var array = [];
 					for(var item in data ){
-					array.push(JSON.stringify(data[item].name ) +  '\n');
-						
+					array.push(JSON.stringify(data[item].name ) +  '\n');		
 					}
 				fulfill('List Of Repos: \n' + array);
 			}

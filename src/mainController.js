@@ -1,6 +1,7 @@
 const AWS = require('./AWS_API.js');
 const GIT = require('./GITHUB_API.js');
 const SLACK = require('./SlackInterface.js');
+const pass = process.env.PASS || '';
 const DEBUG = module.exports.DEBUG;
 AWS.DEBUG = DEBUG;
 
@@ -44,6 +45,7 @@ exports.parseCommand = function(message) {
             SLACK.sendMessage("Slack command does not exist", message);
         }
     } else if (keyMessage(text, 'git ')) {
+		SLACK.handleMessagePromise(GIT.auth(pass), message);
 		text = text.substring('git '.length, text.length);
 			if (keyMessage(text, 'branches')) {
 				SLACK.handleMessagePromise(GIT.checkNumberofFeatureBranches(), message);
@@ -124,6 +126,9 @@ git (GitHub) \n\
 \tclosed pull \n\
 \ttime [branch-name]\n\
 \tcontributors\n\
+\trepos\n\
+\tget all pull requests\n\
+\tmerge pull request [pull request number]\n\
 \n\
 slack \n\
 \t#(Channel Name)\n\

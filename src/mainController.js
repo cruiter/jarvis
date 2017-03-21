@@ -71,6 +71,8 @@ exports.parseCommand = function(message) {
 			}else if (keyMessage(text, 'merge pull request')){
 			     text = text.substring('merge pull request '.length, text.length);
 				 SLACK.handleMessagePromise(GIT.mergePullRequest(text), message);
+			}else if (keyMessage(text, 'feeds')){
+			     SLACK.handleMessagePromise(GIT.feeds(), message);
 			}else {
 				SLACK.sendMessage("Git Command does not exist", message);
 			}

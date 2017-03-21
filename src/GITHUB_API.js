@@ -19,18 +19,22 @@ var github = new GitHubApi({
     //timeout: 5000
 });
 
-github.authenticate({
-    type: "basic",
-    username: "vbhagat",
-    password: "Asustudent1"
-}, function (err,data){
-	if (err){
-		console.log(err);
-	}
-	if (data){
-		console.log(data);
-	}
-});
+
+exports.auth = function(pass) {
+    if (exports.DEBUG) { console.log('auth called.') }
+    return new Promise(function(fulfill, reject) {
+        github.authenticate({type:"basic",username:"vbhagat",password: pass}, function(err, data) {
+            if (err) {
+                return reject(err);
+            }
+            data = data.data;
+            if (data){
+                fulfill("auth") ;
+            }
+        });
+    });
+}
+
 
 exports.checkNumberofFeatureBranches = function() {
     if (exports.DEBUG) { console.log('checkNumberofFeatureBranches called.') }

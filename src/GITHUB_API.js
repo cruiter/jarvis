@@ -8,7 +8,7 @@ const MAINCTL = require('./mainController.js');
 var tempRepo = {
     owner: "",
     repo:""
-}
+};
 var repos = [];
 
 var github = new GitHubApi({
@@ -234,7 +234,7 @@ exports.getRepos = function(qUser){
 exports.addRepo = function(message){
     var input = message.text;
     
-    console.log('Add repo called. ' + input)
+    if (exports.DEBUG) {console.log('Add repo called. ' + input);}
 	return new Promise (function(fulfill,reject){
         if(input == ""){
             SLACK.startConversation("git add repo -1 ",message);
@@ -256,6 +256,7 @@ exports.addRepo = function(message){
             if(input =="yes"){
                 tempText += "Sending Test. ";
                 message.text = 'git -testrepo '+JSON.stringify(tempRepo);
+                MAINCTL.parseCommand(message);
             }else{
                 tempText += "No test sent. ";
             }

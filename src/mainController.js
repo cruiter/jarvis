@@ -9,7 +9,7 @@ AWS.DEBUG = DEBUG;
 
 exports.parseCommand = function(message) {
     var text = message.text;
-     if (DEBUG) {console.log("Parsing Command: "+text)}
+     if (DEBUG) { console.log("Parsing Command: "+text)}
     if (keyMessage(text, 'aws ')) {
         text = text.substring('aws '.length, text.length);
         if (keyMessage(text, 'check ec2 ')) {

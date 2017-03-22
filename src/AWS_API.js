@@ -25,6 +25,9 @@ var EC2Promise = function(ec2, functionName, params) {
     });
 }
 
+/**
+ * Returns the value of the Name tag
+ */
 var getNameTag = function (tags) {
     for (var i = tags.length - 1; i >= 0; i--) {
         if (tags[i].Key === 'Name') {
@@ -225,6 +228,101 @@ exports.checkNumInstances = function () {
             fulfill(resp);
         }, function (err) {
             return reject(err);
+        });
+    });
+}
+
+/**
+ * Returns the cost per hour of an instance type
+ */
+var getMachineTypeCost = function(instanceType) {
+    switch (instanceType) {
+        case 't2.nano':
+            return 0.006;
+        case 't2.micro':
+            return 0.012;
+        case 't2.small':
+            return 0.023;
+        case 't2.medium':
+            return 0.047;
+        case 't2.large':
+            return 0.094;
+        case 't2.xlarge':
+            return 0.188;
+        case 'c4.large':
+            return 0.100;
+        case 'c4.xlarge':
+            return 0.199;
+        case 'c4.2xlarge':
+            return 0.398;
+        default:
+            return 0;
+    }
+}
+
+var getTotalInstanceCostSub = function (instance) {
+    return new Promise(function(fulfill) {
+        var nonRunningInstances = [];
+        var blockingPromises = [];
+        var name = getNameTag(instance.Tags);
+        name = name ? ' ('+name+')' : '';
+
+        var cost = getMachineTypeCost(instance.InstanceType);
+        var launchEpoch = Math.floor(new Date(instance.LaunchTime) / 1000);
+        var currentEpoch = Math.floor(new Date() / 1000);
+        // caluclate the number of hours running rounded up (how AWS charges)
+        var hours = Math.ceil((currentEpoch - launchEpoch) / 60 / 60);
+
+        var resp = 'The total cost of ' + instance.InstanceId + name + ' is $';
+        resp +=  hours*cost + ' over ' + hours + ' hours. ($' + cost + '/hour)';
+        fulfill(resp);
+    });
+}
+
+/**
+ * Returns the total cost of an instance
+ * @param  {String} instanceId the instanceId or value of Name tag to search for
+ * @return {Promise}
+ */
+exports.getTotalInstanceCost = function (instanceId) {
+    if (exports.DEBUG) { console.log('getTotalInstanceCost called.') }
+
+    return new Promise(function(fulfill, reject) {
+        var params = {
+            InstanceIds: [ instanceId ]
+        };
+        EC2Promise(EC2, 'describeInstances', params)
+        .then(function (data) {
+            getTotalInstanceCostSub(data.Reservations[0].Instances[0]).then(function (resp) {
+                fulfill(resp);
+            });
+        }, function (err) {
+            // if there is no instance found
+            if (err.code === 'InvalidInstanceID.NotFound') {
+                fulfill('There is no instance with the instanceId: ' + instanceId);
+            } if (err.code === 'InvalidInstanceID.Malformed') {
+                var params = {
+                    Filters: [{
+                        Name:  'tag:Name',
+                        Values: [instanceId]
+                    }]
+                };
+
+                EC2Promise(EC2, 'describeInstances', params)
+                .then(function (data) {
+                    if (data.Reservations[0] === undefined) {
+                        fulfill('There is no instance named: ' + instanceId);
+                    } else {
+                        getTotalInstanceCostSub(data.Reservations[0].Instances[0]).then(function (resp) {
+                            fulfill(resp);
+                        });
+                    }
+                }, function (err) {
+                    reject(err.message);
+                });
+            } else {
+                reject(err.message);
+            }
         });
     });
 }

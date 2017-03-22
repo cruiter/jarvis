@@ -49,7 +49,7 @@ exports.feeds = function() {
 				var array = [];
 				var count = 1;
 				for(var item in data ){
-		var str1 = "EVENT TYPE: " + data[item].type + "\n" + "\t" + "USER: " + data[item].actor.login + "\n" +"\t"  + "TIME CREATED: " + data[item].created_at + "\n";	
+		var str1 = "EVENT TYPE: " + data[item].type + "\n" + "\t" + "USER: " + data[item].actor.login + "\n" +"\t"  + "TIME CREATED: " + dateformat(data[item].created_at,"dddd, mmmm dS, yyyy, h:MM:ss tt Z") + "\n";	
 		if (data[item].type == "PushEvent")
 		{
 			var str2 ="\t# of FILES CHANGED: " + data[item].payload.size + "\n";

@@ -49,18 +49,18 @@ exports.feeds = function() {
 				var array = [];
 				var count = 1;
 				for(var item in data ){
-		var str1 = "EVENT TYPE: " + data[item].type + "\n" + "USER: " + data[item].actor.login + "\n"  + "TIME CREATED: " + data[item].created_at + "\n";	
+		var str1 = "EVENT TYPE: " + data[item].type + "\n" + "\t" + "USER: " + data[item].actor.login + "\n" +"\t"  + "TIME CREATED: " + data[item].created_at + "\n";	
 		if (data[item].type == "PushEvent")
 		{
-			var str2 = "# of FILES CHANGED: " + data[item].payload.size + "\n";
+			var str2 ="\t# of FILES CHANGED: " + data[item].payload.size + "\n";
 		}
 				if (data[item].type == "CreateEvent")
 		{
-			var str2 = "BRANCH CREATED: " + data[item].payload.ref + "\n";
+			var str2 = "\tBRANCH CREATED: " + data[item].payload.ref + "\n";
 		}
 				if (data[item].type == "PullRequestEvent")
 		{
-			var str2 = "ACTION TAKEN: " + data[item].payload.action + "\n";
+			var str2 ="\tACTION TAKEN: " + data[item].payload.action + "\n";
 		}
 		res += str1.concat(str2);
 		//array.push(res);

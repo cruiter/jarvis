@@ -116,31 +116,33 @@ function keyMessage(text, key) {
 getActiveCommands = function(){
     if (exports.DEBUG) {console.log('getActiveCommands called.')}
     return new Promise (function(fulfill,reject) {
-        fulfill(`Here are my Current Commands:\n\n
-aws (Cloud - Amazon Web Services) \n
-\tcheck ec2 [instance] \n
-\tcheck number of instances \n
-\tget cost of [instance] \n
-\n
-git (GitHub) \n
-\tbranches\n
-\tlist branches \n
-\tpushed [branch-name]\n
-\topen pull \n
-\tclosed pull \n
-\ttime [branch-name]\n
-\tcontributors\n
-\trepos\n
-\tget all pull requests\n
-\tmerge pull request [pull request number]\n
-\tfeeds \n
-\n
-slack \n
-\t#(Channel Name)\n
-\t@(Username)\n
-\twhoami\n
-\twhos online\n
-\tlist users\n
-\twait\n`);
+        fulfill(`Here are my Current Commands:
+
+aws (Cloud - Amazon Web Services)
+\tcheck ec2 [instance]
+\tcheck number of instances
+\tget cost of [instance]
+
+git (GitHub)
+\tbranches
+\tlist branches
+\tpushed [branch-name]
+\topen pull
+\tclosed pull
+\ttime [branch-name]
+\tcontributors
+\trepos
+\tget all pull requests
+\tmerge pull request [pull request number]
+\tfeeds
+
+slack
+\t#(Channel Name)
+\t@(Username)
+\twhoami
+\twhos online
+\tlist users
+\twait
+`);
     });
 }

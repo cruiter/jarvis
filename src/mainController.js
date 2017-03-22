@@ -21,6 +21,8 @@ exports.parseCommand = function(message) {
             }
         } else if (keyMessage(text, 'check number of instances ')) {
             SLACK.handleMessagePromise(AWS.checkNumInstances(), message);
+        } else if (keyMessage(text, 'get cost of ')) {
+            SLACK.handleMessagePromise(AWS.getTotalInstanceCost(text.substring('get cost of '.length, text.length)), message);
         } else {
             SLACK.sendMessage("AWS command does not exist", message);
         }
@@ -45,43 +47,43 @@ exports.parseCommand = function(message) {
             SLACK.sendMessage("Slack command does not exist", message);
         }
     } else if (keyMessage(text, 'git ')) {
-		SLACK.handleMessagePromise(GIT.auth(pass), message);
-		text = text.substring('git '.length, text.length);
-			if (keyMessage(text, 'branches')) {
-				SLACK.handleMessagePromise(GIT.checkNumberofFeatureBranches(), message);
-			}else if (keyMessage(text, 'list branches')) {
-				SLACK.handleMessagePromise(GIT.listBranches(), message);
-			}else if (keyMessage(text, 'pushed')){
+        SLACK.handleMessagePromise(GIT.auth(pass), message);
+        text = text.substring('git '.length, text.length);
+            if (keyMessage(text, 'branches')) {
+                SLACK.handleMessagePromise(GIT.checkNumberofFeatureBranches(), message);
+            }else if (keyMessage(text, 'list branches')) {
+                SLACK.handleMessagePromise(GIT.listBranches(), message);
+            }else if (keyMessage(text, 'pushed')){
                 text = text.substring('pushed '.length, text.length);
-				SLACK.handleMessagePromise(GIT.checkLastPushedtoBranchName(text), message);
-			}else if (keyMessage(text, 'open pull')){
-				SLACK.handleMessagePromise(GIT.checkLatestPullRequest(), message);
-			}else if (keyMessage(text, 'closed pull')){
-				SLACK.handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
-			}else if (keyMessage(text, 'time')){
+                SLACK.handleMessagePromise(GIT.checkLastPushedtoBranchName(text), message);
+            }else if (keyMessage(text, 'open pull')){
+                SLACK.handleMessagePromise(GIT.checkLatestPullRequest(), message);
+            }else if (keyMessage(text, 'closed pull')){
+                SLACK.handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
+            }else if (keyMessage(text, 'time')){
                 text = text.substring('time '.length, text.length);
-			     SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);	
-			}else if (keyMessage(text, 'contributors')){
-			     SLACK.handleMessagePromise(GIT.checkContributors(), message);
-			}else if (keyMessage(text, 'repos')) {
-				 text = text.substring('repos '.length, text.length);
-				 SLACK.handleMessagePromise(GIT.getRepos(text), message);	 
-			}else if (keyMessage(text, 'get all pull requests')){
-			     SLACK.handleMessagePromise(GIT.getAllPullRequests(), message);
-			}else if (keyMessage(text, 'merge pull request')){
-			     text = text.substring('merge pull request '.length, text.length);
-				 SLACK.handleMessagePromise(GIT.mergePullRequest(text), message);
-			}else if (keyMessage(text, 'feeds')){
-			     SLACK.handleMessagePromise(GIT.feeds(), message);
-			}else {
-				SLACK.sendMessage("Git Command does not exist", message);
-			}
+                SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);
+            }else if (keyMessage(text, 'contributors')){
+                SLACK.handleMessagePromise(GIT.checkContributors(), message);
+            }else if (keyMessage(text, 'repos')) {
+                text = text.substring('repos '.length, text.length);
+                SLACK.handleMessagePromise(GIT.getRepos(text), message);
+            }else if (keyMessage(text, 'get all pull requests')){
+                SLACK.handleMessagePromise(GIT.getAllPullRequests(), message);
+            }else if (keyMessage(text, 'merge pull request')){
+                text = text.substring('merge pull request '.length, text.length);
+                SLACK.handleMessagePromise(GIT.mergePullRequest(text), message);
+            }else if (keyMessage(text, 'feeds')){
+                SLACK.handleMessagePromise(GIT.feeds(), message);
+            }else {
+                SLACK.sendMessage("Git Command does not exist", message);
+            }
     }else if (keyMessage(text, 'help ')) {
         SLACK.handleMessagePromise(getActiveCommands(), message);
     }
     //SAMPLE CONVERSATION CONSTRUCT
     else if (keyMessage(text, 'wait ')) {
-		text = text.substring('wait '.length, text.length);
+        text = text.substring('wait '.length, text.length);
         if(text.length == 0){
             SLACK.startConversation("wait -1 ",message);
             SLACK.sendMessage("I'm Listening for another command", message);
@@ -112,36 +114,35 @@ function keyMessage(text, key) {
 }
 
 getActiveCommands = function(){
-	if (exports.DEBUG) {console.log('getActiveCommands called.')}
-	return new Promise (function(fulfill,reject){
-		
-			fulfill("Here are my Current Commands:\n\n \
-aws (Cloud - Amazon Web Services) \n \
-\tcheck ec2 [instance] \n \
-\tcheck number of instances \n \
-\n \
-git (GitHub) \n\
-\tbranches\n\
-\tlist branches \n\
-\tpushed [branch-name]\n\
-\topen pull \n\
-\tclosed pull \n\
-\ttime [branch-name]\n\
-\tcontributors\n\
-\trepos\n\
-\tget all pull requests\n\
-\tmerge pull request [pull request number]\n\
-\tfeeds\n\
-\n\
-slack \n\
-\t#(Channel Name)\n\
-\t@(Username)\n\
-\twhoami\n\
-\twhos online\n\
-\tlist users\n\
-\twait\n");
-                    
-        
-            
+    if (exports.DEBUG) {console.log('getActiveCommands called.')}
+    return new Promise (function(fulfill,reject) {
+        fulfill(`Here are my Current Commands:
+
+aws (Cloud - Amazon Web Services)
+\tcheck ec2 [instance]
+\tcheck number of instances
+\tget cost of [instance]
+
+git (GitHub)
+\tbranches
+\tlist branches
+\tpushed [branch-name]
+\topen pull
+\tclosed pull
+\ttime [branch-name]
+\tcontributors
+\trepos
+\tget all pull requests
+\tmerge pull request [pull request number]
+\tfeeds
+
+slack
+\t#(Channel Name)
+\t@(Username)
+\twhoami
+\twhos online
+\tlist users
+\twait
+`);
     });
- }
+}

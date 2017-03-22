@@ -84,9 +84,9 @@ exports.parseCommand = function(message) {
     	else if (keyMessage(text, 'git ')){
     		text = text.substring('git '.length, text.length);
 			if (keyMessage(text, 'branches')) {
-				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+				SLACK.sendMessage("The 'git branches' command checks the number of branches active in the current repository.", message);
 			}else if (keyMessage(text, 'list branches')) {
-				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+				SLACK.sendMessage("The 'git list branches' command lists the names of the branches in the current repository.", message);
 			}else if (keyMessage(text, 'pushed')){
 				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
 			}else if (keyMessage(text, 'open pull')){
@@ -99,7 +99,7 @@ exports.parseCommand = function(message) {
 				SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
 			}
     		else{
-    			SLACK.sendMessage("The Git (GitHub) commands I currently know are:\n\
+    			SLACK.sendMessage("The Git (GitHub) commands I currently have help documents for are:\n\
     					\tbranches\n\
     					\tlist branches \n\
     					\tpushed [branch-name]\n\
@@ -111,21 +111,21 @@ exports.parseCommand = function(message) {
     	}
     	else if (keyMessage(text, 'slack ')){
     		text = text.substring('slack '.length, text.length);
-            if (keyMessage(text, 't# ')) {
-            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
-            } else if (keyMessage(text, 't@ ')) {
-            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+            if (keyMessage(text, '# ')) {
+            	SLACK.sendMessage("The command 'slack #[channel name]' displays information about the requested channel.", message);
+            } else if (keyMessage(text, '@ ')) {
+            	SLACK.sendMessage("The command 'slack @[user name]' displays information about the requested user.", message);
             } else if (keyMessage(text, 'list users ')) {
-            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+            	SLACK.sendMessage("The 'slack list users' lists the users currently on the team.", message);
             } else if (keyMessage(text, 'whoami ')) {
-            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+            	SLACK.sendMessage("The 'slack whoami' command prints the bot's information on the current team.", message);
             } else if (keyMessage(text, 'whos online ')) {
-            	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
+            	SLACK.sendMessage("The 'slack whos online' command lists the team members currently online.", message);
             } else if (keyMessage(text, 'wait ')) {
             	SLACK.sendMessage("Help for this command doesn't exist yet. Sorry!", message);
             }
     		else{
-    			SLACK.sendMessage("The Slack  commands I currently know are:\n\
+    			SLACK.sendMessage("The Slack  commands I currently have help documents for are:\n\
     					\t#(Channel Name)\n\
     					\t@(Username)\n\
     					\twhoami\n\

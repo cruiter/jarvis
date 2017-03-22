@@ -308,7 +308,7 @@ exports.addRepo = function(message){
             var tempText = "";
             
             if(input =="yes"){
-                tempText += "Saving Repo.";
+                tempText += "We are still working on Saving Repos.";
                 repos.push(tempRepo);
                 tempRepo.owner = "";
                 tempRepo.repo = "";

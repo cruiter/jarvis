@@ -124,8 +124,7 @@ exports.getActiveConv = function (user, channel){
     for (var i = 0, len = activeConv.length; i < len; i++){
         if(activeConv[i].user == user && activeConv[i].channel == channel){
              if (DEBUG) {
-                console.log("Conversation");
-                rtm.sendMessage("processing command .. conversation continued", message.channel);
+                console.log("Conversation Fetched");
              }
             return i;
         }
@@ -206,12 +205,8 @@ process.on('SIGINT', function() {
     process.exit();
 });
 
-if (DEBUG) {
-    mockRTM();
-} else {
-    main();
-}
 
+    main();
 
 /*******************************************************************************
  * SLACK API CALLS

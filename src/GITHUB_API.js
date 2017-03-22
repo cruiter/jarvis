@@ -3,6 +3,13 @@
  */
 var GitHubApi = require("github");
 var dateformat = require("dateformat");
+const SLACK = require('./SlackInterface.js');
+const MAINCTL = require('./mainController.js');
+var tempRepo = {
+    owner: "",
+    repo:""
+}
+var repos = [];
 
 var github = new GitHubApi({
     // optional may be using for future use oAuath
@@ -224,4 +231,80 @@ exports.getRepos = function(qUser){
         });
     });
 }
-
+exports.addRepo = function(message){
+    var input = message.text;
+    
+    console.log('Add repo called. ' + input)
+	return new Promise (function(fulfill,reject){
+        if(input == ""){
+            SLACK.startConversation("git add repo -1 ",message);
+            fulfill("Starting Process to add Repo:\nWho is the Owner?");
+        }
+        else if (keyMessage(input, '-1 ')){
+            input = input.substring('-1 '.length, input.length);
+            SLACK.startConversation("git add repo -2 ",message);
+            tempRepo.owner = input;
+            fulfill("What is the name of the repo?");
+        }else if (keyMessage(input, '-2 ')){
+            input = input.substring('-2 '.length, input.length);
+            SLACK.startConversation("git add repo -3 ",message);
+            tempRepo.repo = input;
+            fulfill("Test Repo Connection: " + JSON.stringify(tempRepo)+"? (yes or no)");
+        }else if (keyMessage(input, '-3 ')){
+            input = input.substring('-3 '.length, input.length);
+            var tempText = "";
+            if(input =="yes"){
+                tempText += "Sending Test. ";
+                message.text = 'git -testrepo '+JSON.stringify(tempRepo);
+            }else{
+                tempText += "No test sent. ";
+            }
+            SLACK.startConversation("git add repo -4 ",message);
+            tempText += "Save Repo?";
+            
+            fulfill(tempText);
+        }else if (keyMessage(input, '-4 ')){
+            input = input.substring('-4 '.length, input.length);
+            var tempText = "";
+            
+            if(input =="yes"){
+                tempText += "Saving Repo.";
+                repos.push(tempRepo);
+                tempRepo.owner = "";
+                tempRepo.repo = "";
+            }else{
+                tempText += "Resetting Temp Repo Info.";
+                tempRepo.owner = "";
+                tempRepo.repo = "";
+            }
+            fulfill(tempText);
+        }
+    });
+}
+exports.repoTest = function(input) {
+    if (exports.DEBUG) { console.log('test repo listBranches called.') }
+    return new Promise(function(fulfill, reject) {
+        github.repos.getBranches(JSON.parse(input), function(err, data) {
+            if (err) {
+                return reject(err);
+            }
+            data = data.data;
+            if (data) {
+                var rBuilder = "";
+                for (var item in data) {
+                    if(data[item].name != undefined){
+                       rBuilder += data[item].name  + "\n";
+                    }
+                }
+                fulfill('The branches are \n' + rBuilder );
+            }
+        });
+    });
+}
+function keyMessage(text, key) {
+    var temptext = text + ' ';
+    if (temptext.length >= key.length && temptext.substring(0, key.length).toLowerCase() === key) {
+        return true;
+    }
+    return false;
+}

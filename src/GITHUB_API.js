@@ -8,7 +8,7 @@ const MAINCTL = require('./mainController.js');
 var tempRepo = {
     owner: "",
     repo:""
-}
+};
 var repos = [];
 
 var github = new GitHubApi({
@@ -26,7 +26,6 @@ var github = new GitHubApi({
     //timeout: 5000
 });
 
-
 exports.auth = function(pass) {
     if (exports.DEBUG) { console.log('auth called.') }
     return new Promise(function(fulfill, reject) {
@@ -36,12 +35,12 @@ exports.auth = function(pass) {
             }
             data = data.data;
             if (data){
-
                 fulfill("auth") ;
             }
         });
     });
 }
+
 exports.feeds = function() {
     if (exports.DEBUG) { console.log('feeds called.') }
     return new Promise(function(fulfill, reject) {
@@ -82,7 +81,6 @@ exports.feeds = function() {
         });
     });
 }
-	
 
 exports.checkNumberofFeatureBranches = function() {
     if (exports.DEBUG) { console.log('checkNumberofFeatureBranches called.') }

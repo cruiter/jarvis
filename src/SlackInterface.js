@@ -124,7 +124,7 @@ exports.getActiveConv = function (user, channel){
     for (var i = 0, len = activeConv.length; i < len; i++){
         if(activeConv[i].user == user && activeConv[i].channel == channel){
              if (DEBUG) {
-                console.log("Conversation Fetched");
+                console.log("Conversation");
              }
             return i;
         }
@@ -205,8 +205,8 @@ process.on('SIGINT', function() {
     process.exit();
 });
 
+main();
 
-    main();
 
 /*******************************************************************************
  * SLACK API CALLS

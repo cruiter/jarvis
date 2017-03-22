@@ -29,12 +29,53 @@ exports.auth = function(pass) {
             }
             data = data.data;
             if (data){
+
                 fulfill("auth") ;
             }
         });
     });
 }
+exports.feeds = function() {
+    if (exports.DEBUG) { console.log('feeds called.') }
+    return new Promise(function(fulfill, reject) {
+        github.activity.getEventsForRepo({owner:"jessicalynn",repo:"jarvis"}, function(err, data) {
+            if (err) {
+                return reject(err);
+            }
+            data = data.data;
+            if (data){
 
+				var res = "";
+				var array = [];
+				var count = 1;
+				for(var item in data ){
+		var str1 = "EVENT TYPE: " + data[item].type + "\n" + "\t" + "USER: " + data[item].actor.login + "\n" +"\t"  + "TIME CREATED: " + data[item].created_at + "\n";	
+		if (data[item].type == "PushEvent")
+		{
+			var str2 ="\t# of FILES CHANGED: " + data[item].payload.size + "\n";
+		}
+				if (data[item].type == "CreateEvent")
+		{
+			var str2 = "\tBRANCH CREATED: " + data[item].payload.ref + "\n";
+		}
+				if (data[item].type == "PullRequestEvent")
+		{
+			var str2 ="\tACTION TAKEN: " + data[item].payload.action + "\n";
+		}
+		res += str1.concat(str2);
+		//array.push(res);
+		if (item == 5 )
+		{break};
+					
+				}
+				
+			fulfill("REACENT ACTIVITY FEED \n" + res ) ;	
+			
+            }
+        });
+    });
+}
+	
 
 exports.checkNumberofFeatureBranches = function() {
     if (exports.DEBUG) { console.log('checkNumberofFeatureBranches called.') }
@@ -224,4 +265,7 @@ exports.getRepos = function(qUser){
         });
     });
 }
+
+
+
 

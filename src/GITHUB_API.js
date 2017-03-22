@@ -45,31 +45,31 @@ exports.feeds = function() {
             data = data.data;
             if (data){
 
-             
-					var array = [];
+				var res = "";
+				var array = [];
 				var count = 1;
 				for(var item in data ){
-		array.push("EVENT TYPE: " + data[item].type + "\n")	
-		array.push("USER: " + data[item].actor.login + "\n")
-		array.push("TIME CREATED: " + data[item].created_at + "\n");
+		var str1 = "EVENT TYPE: " + data[item].type + "\n" + "USER: " + data[item].actor.login + "\n"  + "TIME CREATED: " + data[item].created_at + "\n";	
 		if (data[item].type == "PushEvent")
 		{
-			array.push("number of files changed: " + data[item].payload.size + "\n")
+			var str2 = "# of FILES CHANGED: " + data[item].payload.size + "\n";
 		}
 				if (data[item].type == "CreateEvent")
 		{
-			array.push("Branch Created: " + data[item].payload.ref + "\n")
+			var str2 = "BRANCH CREATED: " + data[item].payload.ref + "\n";
 		}
 				if (data[item].type == "PullRequestEvent")
 		{
-			array.push("Action Taken: " + data[item].payload.action + "\n")
+			var str2 = "ACTION TAKEN: " + data[item].payload.action + "\n";
 		}
+		res += str1.concat(str2);
+		//array.push(res);
 		if (item == 5 )
 		{break};
 					
 				}
 				
-			fulfill("REACENT ACTIVITY FEED \n" + array ) ;	
+			fulfill("REACENT ACTIVITY FEED \n" + res ) ;	
 			
             }
         });

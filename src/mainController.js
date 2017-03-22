@@ -131,6 +131,7 @@ git (GitHub) \n\
 \trepos\n\
 \tget all pull requests\n\
 \tmerge pull request [pull request number]\n\
+\tfeeds\n\
 \n\
 slack \n\
 \t#(Channel Name)\n\

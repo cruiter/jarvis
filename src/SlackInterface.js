@@ -125,7 +125,6 @@ exports.getActiveConv = function (user, channel){
         if(activeConv[i].user == user && activeConv[i].channel == channel){
              if (DEBUG) {
                 console.log("Conversation");
-                rtm.sendMessage("processing command .. conversation continued", message.channel);
              }
             return i;
         }
@@ -206,11 +205,7 @@ process.on('SIGINT', function() {
     process.exit();
 });
 
-if (DEBUG) {
-    mockRTM();
-} else {
-    main();
-}
+main();
 
 
 /*******************************************************************************

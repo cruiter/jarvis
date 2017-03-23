@@ -9,7 +9,7 @@ AWS.DEBUG = DEBUG;
 
 exports.parseCommand = function(message) {
     var text = message.text;
-     if (DEBUG) { console.log("Parsing Command: "+text)}
+     if (DEBUG) {console.log("Parsing Command: "+text)}
     if (keyMessage(text, 'aws ')) {
         text = text.substring('aws '.length, text.length);
         if (keyMessage(text, 'check ec2 ')) {
@@ -62,22 +62,30 @@ exports.parseCommand = function(message) {
                 SLACK.handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
             }else if (keyMessage(text, 'time')){
                 text = text.substring('time '.length, text.length);
-                SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);
-            }else if (keyMessage(text, 'contributors')){
-                SLACK.handleMessagePromise(GIT.checkContributors(), message);
-            }else if (keyMessage(text, 'repos')) {
-                text = text.substring('repos '.length, text.length);
-                SLACK.handleMessagePromise(GIT.getRepos(text), message);
-            }else if (keyMessage(text, 'get all pull requests')){
-                SLACK.handleMessagePromise(GIT.getAllPullRequests(), message);
-            }else if (keyMessage(text, 'merge pull request')){
-                text = text.substring('merge pull request '.length, text.length);
-                SLACK.handleMessagePromise(GIT.mergePullRequest(text), message);
-            }else if (keyMessage(text, 'feeds')){
+			     SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);	
+			}else if (keyMessage(text, 'contributors')){
+			     SLACK.handleMessagePromise(GIT.checkContributors(), message);
+			}else if (keyMessage(text, 'repos')) {
+				 text = text.substring('repos '.length, text.length);
+				 SLACK.handleMessagePromise(GIT.getRepos(text), message);	 
+			}else if (keyMessage(text, 'get all pull requests')){
+			     SLACK.handleMessagePromise(GIT.getAllPullRequests(), message);
+			}else if (keyMessage(text, 'merge pull request')){
+			     text = text.substring('merge pull request '.length, text.length);
+				 SLACK.handleMessagePromise(GIT.mergePullRequest(text), message);
+			}else if (keyMessage(text, 'feeds')){
                 SLACK.handleMessagePromise(GIT.feeds(), message);
-            }else {
-                SLACK.sendMessage("Git Command does not exist", message);
-            }
+            }else if (keyMessage(text, 'add repo ')){
+			     text = text.substring('add repo '.length, text.length);
+                message.text = text;
+				 SLACK.handleMessagePromise(GIT.addRepo(message), message);
+
+			}else if (keyMessage(text, '-testrepo ')){
+			     text = text.substring('-testrepo '.length, text.length);
+				 SLACK.handleMessagePromise(GIT.repoTest(text), message);
+			}else {
+				SLACK.sendMessage("Git Command does not exist", message);
+			}
     }else if (keyMessage(text, 'help ')) {
         SLACK.handleMessagePromise(getActiveCommands(), message);
     }

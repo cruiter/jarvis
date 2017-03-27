@@ -2,6 +2,7 @@ const AWS = require('./AWS_API.js');
 const GIT = require('./GITHUB_API.js');
 const SLACK = require('./SlackInterface.js');
 const pass = process.env.PASS || '';
+const Interpreter = require('./interpreter.js');
 const DEBUG = module.exports.DEBUG;
 AWS.DEBUG = DEBUG;
 

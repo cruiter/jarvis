@@ -1,8 +1,18 @@
 const AWS = require('./AWS_API.js');
 const GIT = require('./GITHUB_API.js');
 const SLACK = require('./SlackInterface.js');
+const Interpreter = require('./interpreter.js');
 const DEBUG = module.exports.DEBUG;
 AWS.DEBUG = DEBUG;
+
+//Interpreter Setup
+var INTERPRETER = new Interpreter();
+var builtinPhrases = require('./phrases');
+console.log('Jarvis is learning...');
+Teach = INTERPRETER.teach.bind(INTERPRETER);
+eachKey(builtinPhrases, Teach);
+INTERPRETER.think();
+console.log('Jarvis finished learning, time to listen...');
 
 //Main Controller Code
 
@@ -83,7 +93,7 @@ exports.parseCommand = function(message) {
                 }
             }
     } else {
-        SLACK.sendMessage("I'm sorry, this isn't a command I'm familiar with. use `help` command for list of commands", message);
+    	SLACK.handleMessagePromise(INTERPRETER.interpret(text), message);
     }
 }
 

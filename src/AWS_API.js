@@ -262,8 +262,6 @@ var getMachineTypeCost = function(instanceType) {
 
 var getTotalInstanceCostSub = function (instance) {
     return new Promise(function(fulfill) {
-        var nonRunningInstances = [];
-        var blockingPromises = [];
         var name = getNameTag(instance.Tags);
         name = name ? ' ('+name+')' : '';
 
@@ -323,6 +321,42 @@ exports.getTotalInstanceCost = function (instanceId) {
             } else {
                 reject(err.message);
             }
+        });
+    });
+}
+
+/**
+ * Returns the total cost of all of the instances in the account
+ * @return {Promise}
+ */
+exports.getTotalAccountCost = function () {
+    if (exports.DEBUG) { console.log('getTotalAccountCost called.') }
+
+    return new Promise(function(fulfill, reject) {
+        // get the cost of all instances in the account
+        EC2Promise(EC2, 'describeInstances', {})
+        .then(function (data) {
+            var instances = data.Reservations[0].Instances;
+            var accountHourlyCost = 0;
+            var accountTotalCost = 0;
+
+            // loop through all of the instances
+            for (var i = instances.length -1; i >= 0; i--) {
+                // retrieve the cost of the machine and add it to the running total
+                var cost = getMachineTypeCost(instances[0].InstanceType);
+                accountHourlyCost += cost;
+                var launchEpoch = Math.floor(new Date(instance.LaunchTime) / 1000);
+                var currentEpoch = Math.floor(new Date() / 1000);
+                // caluclate the number of hours running rounded up (how AWS charges)
+                var hours = Math.ceil((currentEpoch - launchEpoch) / 60 / 60);
+                accountTotalCost += hours*cost;
+            }
+
+            var resp = 'The total cost of the account is $';
+            resp +=  accountTotalCost + '. All of the machines running cost $' + cost + '/hour.';
+            fulfill(resp);
+        }, function (err) {
+            return reject(err);
         });
     });
 }

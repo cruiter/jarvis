@@ -22,7 +22,14 @@ exports.parseCommand = function(message) {
         } else if (keyMessage(text, 'check number of instances ')) {
             SLACK.handleMessagePromise(AWS.checkNumInstances(), message);
         } else if (keyMessage(text, 'get cost of ')) {
-            SLACK.handleMessagePromise(AWS.getTotalInstanceCost(text.substring('get cost of '.length, text.length)), message);
+            text = text.substring('get cost of '.length, text.length);
+            if (keyMessage(text, 'account')) {
+                SLACK.handleMessagePromise(AWS.getTotalAccountCost(), message);
+            } else {
+                SLACK.handleMessagePromise(AWS.getTotalInstanceCost(text.substring('get cost of '.length, text.length)), message);
+            }
+        } else if (keyMessage(text, 'list instances')) {
+            SLACK.handleMessagePromise(AWS.listInstances(), message);
         } else {
             SLACK.sendMessage("AWS command does not exist", message);
         }
@@ -62,12 +69,12 @@ exports.parseCommand = function(message) {
                 SLACK.handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
             }else if (keyMessage(text, 'time')){
                 text = text.substring('time '.length, text.length);
-			     SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);	
+			     SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);
 			}else if (keyMessage(text, 'contributors')){
 			     SLACK.handleMessagePromise(GIT.checkContributors(), message);
 			}else if (keyMessage(text, 'repos')) {
 				 text = text.substring('repos '.length, text.length);
-				 SLACK.handleMessagePromise(GIT.getRepos(text), message);	 
+				 SLACK.handleMessagePromise(GIT.getRepos(text), message);
 			}else if (keyMessage(text, 'get all pull requests')){
 			     SLACK.handleMessagePromise(GIT.getAllPullRequests(), message);
 			}else if (keyMessage(text, 'merge pull request')){
@@ -127,9 +134,11 @@ getActiveCommands = function(){
         fulfill(`Here are my Current Commands:
 
 aws (Cloud - Amazon Web Services)
+\tlist instances
 \tcheck ec2 [instance]
 \tcheck number of instances
 \tget cost of [instance]
+\tget cost of account
 
 git (GitHub)
 \tbranches

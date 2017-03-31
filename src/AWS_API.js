@@ -190,7 +190,7 @@ exports.checkEC2 = function() {
                 }
             });
         }, function (err) {
-            return reject(err);
+            reject(err);
         });
     });
 }
@@ -227,7 +227,7 @@ exports.checkNumInstances = function () {
 
             fulfill(resp);
         }, function (err) {
-            return reject(err);
+            reject(err);
         });
     });
 }
@@ -356,7 +356,29 @@ exports.getTotalAccountCost = function () {
             resp +=  accountTotalCost + '. All of the machines running cost $' + cost + '/hour.';
             fulfill(resp);
         }, function (err) {
-            return reject(err);
+            reject(err);
+        });
+    });
+}
+
+exports.listInstances = function () {
+    if (exports.DEBUG) { console.log('listInstances called.') }
+
+    return new Promise(function(fulfill, reject) {
+        EC2Promise(EC2, 'describeInstances', {})
+        .then(function (data) {
+            var resp = 'Instances:\n';
+            // add names of all of the instances
+            var instances = data.Reservations[0].Instances;
+            for (var i = instances.length - 1; i >= 0; i--) {
+                var name = getNameTag(instance.Tags);
+                name = name ? ' ('+name+')' : '';
+                resp += '\t' + instance.InstanceId + name + '\n';
+            }
+
+            fulfill(resp + '\n');
+        }, function (err) {
+            reject(err);
         });
     });
 }

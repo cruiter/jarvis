@@ -255,6 +255,8 @@ var getMachineTypeCost = function(instanceType) {
             return 0.199;
         case 'c4.2xlarge':
             return 0.398;
+        case 'm4.2xlarge':
+            return 1;
         default:
             return 0;
     }
@@ -343,9 +345,9 @@ exports.getTotalAccountCost = function () {
             // loop through all of the instances
             for (var i = instances.length -1; i >= 0; i--) {
                 // retrieve the cost of the machine and add it to the running total
-                var cost = getMachineTypeCost(instances[0].InstanceType);
+                var cost = getMachineTypeCost(instances[i].InstanceType);
                 accountHourlyCost += cost;
-                var launchEpoch = Math.floor(new Date(instance.LaunchTime) / 1000);
+                var launchEpoch = Math.floor(new Date(instances[i].LaunchTime) / 1000);
                 var currentEpoch = Math.floor(new Date() / 1000);
                 // caluclate the number of hours running rounded up (how AWS charges)
                 var hours = Math.ceil((currentEpoch - launchEpoch) / 60 / 60);
@@ -371,12 +373,12 @@ exports.listInstances = function () {
             // add names of all of the instances
             var instances = data.Reservations[0].Instances;
             for (var i = instances.length - 1; i >= 0; i--) {
-                var name = getNameTag(instance.Tags);
+                var name = getNameTag(instances[i].Tags);
                 name = name ? ' ('+name+')' : '';
-                resp += '\t' + instance.InstanceId + name + '\n';
+                resp += '\t' + instances[i].InstanceId + name + '\n';
             }
 
-            fulfill(resp + '\n');
+            fulfill(resp);
         }, function (err) {
             reject(err);
         });

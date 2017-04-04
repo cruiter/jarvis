@@ -36,6 +36,11 @@ var getNameTag = function (tags) {
     }
 }
 
+/**
+ * Makes sure the EC2 instance is running
+ * @param  {Object} instance JSON received from AWS
+ * @return {Promise}
+ */
 var checkEC2InstanceSub = function(instance) {
     return new Promise(function(fulfill) {
         var nonRunningInstances = [];
@@ -234,6 +239,8 @@ exports.checkNumInstances = function () {
 
 /**
  * Returns the cost per hour of an instance type
+ * @param  {String} instanceType AWS instance type
+ * @return {Float}
  */
 var getMachineTypeCost = function(instanceType) {
     switch (instanceType) {
@@ -262,6 +269,11 @@ var getMachineTypeCost = function(instanceType) {
     }
 }
 
+/**
+ * Retrieves the cost of an instance from the instance JSON
+ * @param  {Object} instance JSON received from AWS
+ * @return {Promise}
+ */
 var getTotalInstanceCostSub = function (instance) {
     return new Promise(function(fulfill) {
         var name = getNameTag(instance.Tags);
@@ -363,6 +375,10 @@ exports.getTotalAccountCost = function () {
     });
 }
 
+/**
+ * Returns a formatted list of all instances
+ * @return {Promise}
+ */
 exports.listInstances = function () {
     if (exports.DEBUG) { console.log('listInstances called.') }
 

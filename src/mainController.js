@@ -95,6 +95,9 @@ exports.parseCommand = function(message) {
 			}
     }else if (keyMessage(text, 'help ')) {
         SLACK.handleMessagePromise(getActiveCommands(), message);
+    }else if (keyMessage(text, 'shutdown ')) {
+        SLACK.sendMessage("Going offline...Goodbye.", message);
+        SLACK.shutDownJarvis();
     }
     //SAMPLE CONVERSATION CONSTRUCT
     else if (keyMessage(text, 'wait ')) {

@@ -195,7 +195,13 @@ var main = function() {
         rtm.sendMessage(":unamused: :"+reaction.reaction+":",reaction.item.channel);}
     });
 }
-
+exports.shutDownJarvis = function(){
+    if(rtm.connected){
+      rtm.disconnect();
+      console.log("\nJarvis is going offline.")
+    }
+    process.exit();
+}
 process.on('SIGINT', function() {
     if(rtm.connected){
       rtm.disconnect();

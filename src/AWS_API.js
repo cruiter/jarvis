@@ -36,6 +36,11 @@ var getNameTag = function (tags) {
     }
 }
 
+/**
+ * Makes sure the EC2 instance is running
+ * @param  {Object} instance JSON received from AWS
+ * @return {Promise}
+ */
 var checkEC2InstanceSub = function(instance) {
     return new Promise(function(fulfill) {
         var nonRunningInstances = [];
@@ -190,7 +195,7 @@ exports.checkEC2 = function() {
                 }
             });
         }, function (err) {
-            return reject(err);
+            reject(err);
         });
     });
 }
@@ -227,13 +232,15 @@ exports.checkNumInstances = function () {
 
             fulfill(resp);
         }, function (err) {
-            return reject(err);
+            reject(err);
         });
     });
 }
 
 /**
  * Returns the cost per hour of an instance type
+ * @param  {String} instanceType AWS instance type
+ * @return {Float}
  */
 var getMachineTypeCost = function(instanceType) {
     switch (instanceType) {
@@ -255,15 +262,20 @@ var getMachineTypeCost = function(instanceType) {
             return 0.199;
         case 'c4.2xlarge':
             return 0.398;
+        case 'm4.2xlarge':
+            return 1;
         default:
             return 0;
     }
 }
 
+/**
+ * Retrieves the cost of an instance from the instance JSON
+ * @param  {Object} instance JSON received from AWS
+ * @return {Promise}
+ */
 var getTotalInstanceCostSub = function (instance) {
     return new Promise(function(fulfill) {
-        var nonRunningInstances = [];
-        var blockingPromises = [];
         var name = getNameTag(instance.Tags);
         name = name ? ' ('+name+')' : '';
 
@@ -323,6 +335,68 @@ exports.getTotalInstanceCost = function (instanceId) {
             } else {
                 reject(err.message);
             }
+        });
+    });
+}
+
+/**
+ * Returns the total cost of all of the instances in the account
+ * @return {Promise}
+ */
+exports.getTotalAccountCost = function () {
+    if (exports.DEBUG) { console.log('getTotalAccountCost called.') }
+
+    return new Promise(function(fulfill, reject) {
+        // get the cost of all instances in the account
+        EC2Promise(EC2, 'describeInstances', {})
+        .then(function (data) {
+            var instances = data.Reservations[0].Instances;
+            var accountHourlyCost = 0;
+            var accountTotalCost = 0;
+
+            // loop through all of the instances
+            for (var i = instances.length -1; i >= 0; i--) {
+                // retrieve the cost of the machine and add it to the running total
+                var cost = getMachineTypeCost(instances[i].InstanceType);
+                accountHourlyCost += cost;
+                var launchEpoch = Math.floor(new Date(instances[i].LaunchTime) / 1000);
+                var currentEpoch = Math.floor(new Date() / 1000);
+                // caluclate the number of hours running rounded up (how AWS charges)
+                var hours = Math.ceil((currentEpoch - launchEpoch) / 60 / 60);
+                accountTotalCost += hours*cost;
+            }
+
+            var resp = 'The total cost of the account is $';
+            resp +=  accountTotalCost + '. All of the machines running cost $' + cost + '/hour.';
+            fulfill(resp);
+        }, function (err) {
+            reject(err);
+        });
+    });
+}
+
+/**
+ * Returns a formatted list of all instances
+ * @return {Promise}
+ */
+exports.listInstances = function () {
+    if (exports.DEBUG) { console.log('listInstances called.') }
+
+    return new Promise(function(fulfill, reject) {
+        EC2Promise(EC2, 'describeInstances', {})
+        .then(function (data) {
+            var resp = 'Instances:\n';
+            // add names of all of the instances
+            var instances = data.Reservations[0].Instances;
+            for (var i = instances.length - 1; i >= 0; i--) {
+                var name = getNameTag(instances[i].Tags);
+                name = name ? ' ('+name+')' : '';
+                resp += '\t' + instances[i].InstanceId + name + '\n';
+            }
+
+            fulfill(resp);
+        }, function (err) {
+            reject(err);
         });
     });
 }

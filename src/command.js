@@ -1,12 +1,11 @@
 const SLACK = require('./SlackInterface.js');
 
 module.exports = function(skill, info, message) {
-	console.log("Command file reached!")
 	if(skill=='Wait'){
-		SLACK.sendMessage("Executing 'wait' code.", message);
+		SLACK.sendMessage("I'm waiting.", message);
 	}
 	else if(skill=='WhosOnline'){
-		SLACK.sendMessage("Executing 'WhosOnline' code.", message);
+		SLACK.handleMessagePromise(SLACK.slackWhoseOnline(), message);
 	}
 	else if(skill=='WhoAmI'){
 		var os = require('os');

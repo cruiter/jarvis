@@ -125,7 +125,6 @@ exports.parseCommand = function(message) {
                 }
             }
     } else {
-    	console.log("Text being sent to interpreter...");
     	var interpretation = INTERPRETER.interpret(text);
     	if(interpretation.guess){
     		INTERPRETER.invoke(interpretation.guess, interpretation, message);

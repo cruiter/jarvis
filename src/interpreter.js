@@ -33,7 +33,6 @@ Interpreter.prototype.think = function() {
 };
 
 Interpreter.prototype.interpret = function(phrase) {
-  console.log("Interpreter has received text..");
   var guesses = this.classifier.getClassifications(phrase.toLowerCase());
   var guess = guesses.reduce(toMaxValue);
   return {
@@ -43,7 +42,6 @@ Interpreter.prototype.interpret = function(phrase) {
 };
 
 Interpreter.prototype.invoke = function(skill, info, message) {
-  console.log("Invoke code reached!");
   var skillCode;
   
   // check the sentiment 

@@ -93,7 +93,14 @@ exports.parseCommand = function(message) {
                 }
             }
     } else {
-    	SLACK.handleMessagePromise(INTERPRETER.interpret(text), message);
+    	console.log("Text being sent to interpreter...");
+    	var interpretation = INTERPRETER.interpret(text);
+    	if(interpretation.guess){
+    		INTERPRETER.invoke(interpretation.guess, interpretation, message);
+    	}
+    	else{
+    		SLACK.sendMessage("Sorry, I'm not sure what that means.", message);
+    	}
     }
 }
 
@@ -108,6 +115,13 @@ function keyMessage(text, key) {
     }
     return false;
 }
+
+function eachKey(object, callback) {
+	  Object.keys(object).forEach(function(key) {
+	    callback(key, object[key]);
+	  });
+	}
+
 
 getActiveCommands = function(){
 	if (exports.DEBUG) {console.log('getActiveCommands called.')}

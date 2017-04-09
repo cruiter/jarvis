@@ -33,6 +33,7 @@ Interpreter.prototype.think = function() {
 };
 
 Interpreter.prototype.interpret = function(phrase) {
+  console.log("Interpreter has received text..");
   var guesses = this.classifier.getClassifications(phrase.toLowerCase());
   var guess = guesses.reduce(toMaxValue);
   return {
@@ -41,7 +42,8 @@ Interpreter.prototype.interpret = function(phrase) {
   };
 };
 
-Interpreter.prototype.invoke = function(skill, info, bot, message) {
+Interpreter.prototype.invoke = function(skill, info, message) {
+  console.log("Invoke code reached!");
   var skillCode;
   
   // check the sentiment 
@@ -60,7 +62,7 @@ Interpreter.prototype.invoke = function(skill, info, bot, message) {
     throw new Error('The invoked skill doesn\'t exist!');
   }
   console.log('Running skill code for ' + skill + '...');
-  skillCode(skill, info, bot, message, senti);
+  skillCode(skill, info, message, senti);
   return this;
 };
 

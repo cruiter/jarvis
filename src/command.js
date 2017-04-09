@@ -1,10 +1,12 @@
-module.exports = function(skill, info, bot, message) {
+const SLACK = require('./SlackInterface.js');
 
+module.exports = function(skill, info, message) {
+	console.log("Command file reached!")
 	if(skill=='Wait'){
-		bot.reply(message, "Executing 'wait' code.");
+		SLACK.sendMessage("Executing 'wait' code.", message);
 	}
 	else if(skill=='WhosOnline'){
-		bot.reply(message, "Executing 'WhosOnline' code.");
+		SLACK.sendMessage("Executing 'WhosOnline' code.", message);
 	}
 	else if(skill=='WhoAmI'){
 		var os = require('os');
@@ -12,9 +14,8 @@ module.exports = function(skill, info, bot, message) {
 	    var hostname = os.hostname();
 	    var uptime = formatUptime(process.uptime());
 
-	    bot.reply(message,
-	        ':robot_face: I am a bot named <@' + bot.identity.name +
-	        '>. I have been running for ' + uptime + ' on ' + hostname + '. I\'m about two ticks away from becoming self-aware; Do not piss me off!');
+	    SLACK.sendMessage(
+	        ':robot_face: I am a bot named Jarvis. I have been running for ' + uptime + ' on ' + hostname + '. I\'m about two ticks away from becoming self-aware; Do not piss me off!', message);
 
 	function formatUptime(uptime) {
 	    var unit = 'second';
@@ -35,7 +36,7 @@ module.exports = function(skill, info, bot, message) {
 	}
 	}
 	else{
-		bot.reply(message, "I'm sorry, I can't do that.");
+		SLACK.sendMessage("I'm sorry, I can't do that.", message);
 	}
 
 };

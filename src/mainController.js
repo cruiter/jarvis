@@ -6,6 +6,15 @@ const Interpreter = require('./interpreter.js');
 const DEBUG = module.exports.DEBUG;
 AWS.DEBUG = DEBUG;
 
+//Interpreter Setup
+var INTERPRETER = new Interpreter();
+var builtinPhrases = require('./phrases');
+console.log('Jarvis is learning...');
+Teach = INTERPRETER.teach.bind(INTERPRETER);
+eachKey(builtinPhrases, Teach);
+INTERPRETER.think();
+console.log('Jarvis finished learning, time to listen...');
+
 //Main Controller Code
 
 exports.parseCommand = function(message) {
@@ -116,7 +125,14 @@ exports.parseCommand = function(message) {
                 }
             }
     } else {
-        SLACK.sendMessage("I'm sorry, this isn't a command I'm familiar with. use `help` command for list of commands", message);
+    	console.log("Text being sent to interpreter...");
+    	var interpretation = INTERPRETER.interpret(text);
+    	if(interpretation.guess){
+    		INTERPRETER.invoke(interpretation.guess, interpretation, message);
+    	}
+    	else{
+    		SLACK.sendMessage("Sorry, I'm not sure what that means.", message);
+    	}
     }
 }
 
@@ -131,6 +147,13 @@ function keyMessage(text, key) {
     }
     return false;
 }
+
+function eachKey(object, callback) {
+	  Object.keys(object).forEach(function(key) {
+	    callback(key, object[key]);
+	  });
+	}
+
 
 getActiveCommands = function(){
     if (exports.DEBUG) {console.log('getActiveCommands called.')}

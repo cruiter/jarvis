@@ -11,6 +11,9 @@ var tempRepo = {
 };
 var repos = [];
 
+var owner = "jessicalynn";
+var repo = "jarvis";
+
 var github = new GitHubApi({
     // optional may be using for future use oAuath
     // debug: true,
@@ -44,7 +47,7 @@ exports.auth = function(pass) {
 exports.feeds = function() {
     if (exports.DEBUG) { console.log('feeds called.') }
     return new Promise(function(fulfill, reject) {
-        github.activity.getEventsForRepo({owner:"jessicalynn",repo:"jarvis"}, function(err, data) {
+        github.activity.getEventsForRepo({owner:owner,repo:repo}, function(err, data) {
             if (err) {
                 return reject(err);
             }
@@ -85,7 +88,7 @@ exports.feeds = function() {
 exports.checkNumberofFeatureBranches = function() {
     if (exports.DEBUG) { console.log('checkNumberofFeatureBranches called.') }
     return new Promise(function(fulfill, reject) {
-        github.repos.getBranches({owner:"jessicalynn",repo:"jarvis"}, function(err, data) {
+        github.repos.getBranches({owner: owner ,repo:repo}, function(err, data) {
             if (err) {
                 return reject(err);
             }
@@ -104,7 +107,7 @@ exports.checkNumberofFeatureBranches = function() {
 exports.listBranches = function() {
     if (exports.DEBUG) { console.log('listBranches called.') }
     return new Promise(function(fulfill, reject) {
-        github.repos.getBranches({owner:"jessicalynn",repo:"jarvis"}, function(err, data) {
+        github.repos.getBranches({owner:owner,repo:repo}, function(err, data) {
             if (err) {
                 return reject(err);
             }
@@ -129,7 +132,7 @@ exports.checkLastPushedtoBranchName = function(qBranch){
         qBranch = "master";
     }
     return new Promise (function(fulfill,reject){
-        github.repos.getBranch({ owner: "jessicalynn", repo: "jarvis" ,branch: qBranch},function(err, data) {
+        github.repos.getBranch({ owner: owner, repo: repo,branch: qBranch},function(err, data) {
             if (err){
                 return reject(err);
             }
@@ -144,7 +147,7 @@ exports.checkLastPushedtoBranchName = function(qBranch){
 exports.checkLatestPullRequest = function(){
     if (exports.DEBUG) {console.log('checkLatestPullRequest called.')}
     return new Promise (function(fulfill,reject){
-        github.pullRequests.getAll({ owner: "jessicalynn" , repo: "jarvis" ,state: "open"},function(err, data) {
+        github.pullRequests.getAll({ owner: owner, repo: repo ,state: "open"},function(err, data) {
             if (err){
                 return reject(err);
             }
@@ -163,7 +166,7 @@ exports.checkLatestPullRequest = function(){
 exports.checkLatestClosedPullRequest = function(){
     if (exports.DEBUG) {console.log('checkLatestClosedPullRequest called.')}
     return new Promise (function(fulfill,reject){
-        github.pullRequests.getAll({ owner: "jessicalynn" , repo: "jarvis", state: "closed"},function(err, data) {
+        github.pullRequests.getAll({ owner: owner , repo: repo, state: "closed"},function(err, data) {
             if (err){
                 return reject(err);
             }
@@ -178,7 +181,7 @@ exports.checkLatestClosedPullRequest = function(){
 exports.getAllPullRequests = function(){
     if (exports.DEBUG) {console.log('getAllPullRequests called.')}
     return new Promise (function(fulfill,reject){
-        github.pullRequests.getAll({ owner: "jessicalynn" , repo: "jarvis"},function(err, data) {
+        github.pullRequests.getAll({ owner: owner , repo: repo},function(err, data) {
             if (err){
                 return reject(err);
             }
@@ -201,7 +204,7 @@ exports.getAllPullRequests = function(){
 exports.mergePullRequest = function(input){
     if (exports.DEBUG) {console.log('mergePullRequest called.')}
 	return new Promise (function(fulfill,reject){
-        github.pullRequests.merge({ owner: "jessicalynn" , repo: "jarvis", number: Number(input)},function(err, data) {
+        github.pullRequests.merge({ owner: owner , repo: repo, number: Number(input)},function(err, data) {
             if (err){
                 return reject(err);
             }
@@ -213,13 +216,36 @@ exports.mergePullRequest = function(input){
     });
 }
 
+exports.displayInfo = function(input){
+    if (exports.DEBUG) {console.log('display info called.')}
+	return new Promise (function(fulfill,reject){
+		   fulfill("Owner: " + owner + " Repo: " + repo); 
+    });
+}
+
+exports.updateOwner = function(input){
+    if (exports.DEBUG) {console.log('update Owner called.')}
+	return new Promise (function(fulfill,reject){
+			owner = input;
+		   fulfill("Owner: " + owner); 
+    });
+}
+
+exports.updateRepo = function(input){
+    if (exports.DEBUG) {console.log('update Repo called.')}
+	return new Promise (function(fulfill,reject){
+			repo = input;
+		   fulfill("Repo: " + repo); 
+    });
+}
+
 exports.checkLatestBranchUpdatgeTime = function(qBranch){
     if (exports.DEBUG) {console.log('checkLatestBranchUpdatgeTime called.')}
     if(!qBranch || qBranch == ""){
         qBranch = "master";
     }
     return new Promise (function(fulfill,reject){
-        github.repos.getBranch({ owner: "jessicalynn" , repo: "jarvis", branch: qBranch},function(err, data) {
+        github.repos.getBranch({ owner: owner , repo: repo , branch: qBranch},function(err, data) {
             if (err){
                 return reject(err);
             }
@@ -234,7 +260,7 @@ exports.checkLatestBranchUpdatgeTime = function(qBranch){
 exports.checkContributors = function(  ){
     if (exports.DEBUG) {console.log('checkContributors called.')}
     return new Promise (function(fulfill,reject){
-        github.repos.getContributors({  owner : "jessicalynn", repo : "jarvis"},function(err, data) {
+        github.repos.getContributors({  owner : owner, repo : repo},function(err, data) {
             if (err){
                 return reject(err);
             }

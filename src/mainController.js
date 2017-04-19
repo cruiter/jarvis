@@ -164,9 +164,8 @@ git (GitHub)
 \tmerge pull request [pull request number]
 \tfeeds
 \tdisplay info
-\tupdate owner
-\tupdate repo
-
+\tupdate owner [owner]
+\tupdate repo [repo]
 
 slack
 \t#(Channel Name)

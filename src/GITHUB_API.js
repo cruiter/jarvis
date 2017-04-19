@@ -13,6 +13,7 @@ var repos = [];
 
 var owner = "jessicalynn";
 var repo = "jarvis";
+var username = "vbhagat"
 
 var github = new GitHubApi({
     // optional may be using for future use oAuath
@@ -32,7 +33,7 @@ var github = new GitHubApi({
 exports.auth = function(pass) {
     if (exports.DEBUG) { console.log('auth called.') }
     return new Promise(function(fulfill, reject) {
-        github.authenticate({type:"basic",username:"vbhagat",password: pass}, function(err, data) {
+        github.authenticate({type:"basic",username: username,password: pass}, function(err, data) {
             if (err) {
                 return reject(err);
             }
@@ -236,6 +237,14 @@ exports.updateRepo = function(input){
 	return new Promise (function(fulfill,reject){
 			repo = input;
 		   fulfill("Repo: " + repo); 
+    });
+}
+
+exports.updateUsername = function(input){
+    if (exports.DEBUG) {console.log('update username called.')}
+	return new Promise (function(fulfill,reject){
+			username = input;
+		   fulfill("Username: " + username); 
     });
 }
 

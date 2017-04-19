@@ -80,6 +80,9 @@ exports.parseCommand = function(message) {
 			}else if (keyMessage(text, 'update repo')){
 			     text = text.substring('update repo '.length, text.length);
 				 SLACK.handleMessagePromise(GIT.updateRepo(text), message);
+			}else if (keyMessage(text, 'update username')){
+			     text = text.substring('update username '.length, text.length);
+				 SLACK.handleMessagePromise(GIT.updateUsername(text), message);
 			}else if (keyMessage(text, 'repos')) {
 				 text = text.substring('repos '.length, text.length);
 				 SLACK.handleMessagePromise(GIT.getRepos(text), message);
@@ -166,6 +169,7 @@ git (GitHub)
 \tdisplay info
 \tupdate owner [owner]
 \tupdate repo [repo]
+\tupdate username [username]
 
 slack
 \t#(Channel Name)

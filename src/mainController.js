@@ -72,6 +72,14 @@ exports.parseCommand = function(message) {
 			     SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);
 			}else if (keyMessage(text, 'contributors')){
 			     SLACK.handleMessagePromise(GIT.checkContributors(), message);
+			}else if (keyMessage(text, 'display info')){
+			     SLACK.handleMessagePromise(GIT.displayInfo(), message);
+			}else if (keyMessage(text, 'update owner')){
+			     text = text.substring('update owner '.length, text.length);
+				 SLACK.handleMessagePromise(GIT.updateOwner(text), message);
+			}else if (keyMessage(text, 'update repo')){
+			     text = text.substring('update repo '.length, text.length);
+				 SLACK.handleMessagePromise(GIT.updateRepo(text), message);
 			}else if (keyMessage(text, 'repos')) {
 				 text = text.substring('repos '.length, text.length);
 				 SLACK.handleMessagePromise(GIT.getRepos(text), message);
@@ -155,6 +163,10 @@ git (GitHub)
 \tget all pull requests
 \tmerge pull request [pull request number]
 \tfeeds
+\tdisplay info
+\tupdate owner
+\tupdate repo
+
 
 slack
 \t#(Channel Name)

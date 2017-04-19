@@ -86,6 +86,8 @@ exports.parseCommand = function(message) {
 			}else if (keyMessage(text, 'repos')) {
 				 text = text.substring('repos '.length, text.length);
 				 SLACK.handleMessagePromise(GIT.getRepos(text), message);
+			}else if (keyMessage(text, 'get all open pull requests')){
+			     SLACK.handleMessagePromise(GIT.getAllOpenPullRequests(), message);
 			}else if (keyMessage(text, 'get all pull requests')){
 			     SLACK.handleMessagePromise(GIT.getAllPullRequests(), message);
 			}else if (keyMessage(text, 'merge pull request')){
@@ -164,6 +166,7 @@ git (GitHub)
 \tcontributors
 \trepos
 \tget all pull requests
+\tget all open pull requests
 \tmerge pull request [pull request number]
 \tfeeds
 \tdisplay info

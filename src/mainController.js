@@ -89,7 +89,7 @@ exports.parseCommand = function(message) {
 			}else if (keyMessage(text, 'get all open pull requests')){
 			     SLACK.handleMessagePromise(GIT.getAllOpenPullRequests(), message);
 			}else if (keyMessage(text, 'get all closed pull requests')){
-			     SLACK.handleMessagePromise(GIT.getAllOpenPullRequests(), message);
+			     SLACK.handleMessagePromise(GIT.getAllClosedPullRequests(), message);
 			}else if (keyMessage(text, 'get all pull requests')){
 			     SLACK.handleMessagePromise(GIT.getAllPullRequests(), message);
 			}else if (keyMessage(text, 'merge pull request')){

@@ -182,7 +182,7 @@ exports.checkLatestClosedPullRequest = function(){
 exports.getAllOpenPullRequests = function(){
     if (exports.DEBUG) {console.log('getAllOpenPullRequests called.')}
     return new Promise (function(fulfill,reject){
-        github.pullRequests.getAll({ owner: owner , repo: repo},function(err, data) {
+        github.pullRequests.getAll({ owner: owner , repo: repo , state: "open"},function(err, data) {
             if (err){
                 return reject(err);
             }
@@ -228,7 +228,7 @@ exports.getAllPullRequests = function(){
 exports.getAllClosedPullRequests = function(){
     if (exports.DEBUG) {console.log('getAllClosedPullRequests called.')}
     return new Promise (function(fulfill,reject){
-        github.pullRequests.getAll({ owner: owner , repo: repo},function(err, data) {
+        github.pullRequests.getAll({ owner: owner , repo: repo, state: "closed"},function(err, data) {
             if (err){
                 return reject(err);
             }

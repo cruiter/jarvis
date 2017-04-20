@@ -247,6 +247,7 @@ exports.getAllClosedPullRequests = function(){
         });
     });
 }
+
 exports.mergePullRequest = function(input){
     if (exports.DEBUG) {console.log('mergePullRequest called.')}
 	return new Promise (function(fulfill,reject){
@@ -257,6 +258,26 @@ exports.mergePullRequest = function(input){
             data = data.data;
             if (data) {
                 fulfill(JSON.stringify(data.message));
+            }
+        });
+    });
+}
+
+exports.getComments = function(input){
+    if (exports.DEBUG) {console.log('getComments called.')}
+	return new Promise (function(fulfill,reject){
+        github.pullRequests.getComments({ owner: owner , repo: repo, number: Number(input)},function(err, data) {
+            if (err){
+                return reject(err);
+            }
+            data = data.data;
+            if (data) {
+				var res = "";
+				var array = [];
+				for(var item in data ){
+					res += ('USER: ' + (JSON.stringify(data[item].user.login)) + ' Comment: '  + (JSON.stringify(data[item].body)) +  '\n');	
+				}
+				fulfill("Comment History: \n" + res);
             }
         });
     });

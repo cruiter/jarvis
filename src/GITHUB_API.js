@@ -179,8 +179,8 @@ exports.checkLatestClosedPullRequest = function(){
     });
 }
 
-exports.getAllPullRequests = function(){
-    if (exports.DEBUG) {console.log('getAllPullRequests called.')}
+exports.getAllOpenPullRequests = function(){
+    if (exports.DEBUG) {console.log('getAllOpenPullRequests called.')}
     return new Promise (function(fulfill,reject){
         github.pullRequests.getAll({ owner: owner , repo: repo},function(err, data) {
             if (err){
@@ -202,6 +202,51 @@ exports.getAllPullRequests = function(){
     });
 }
 
+exports.getAllPullRequests = function(){
+    if (exports.DEBUG) {console.log('getAllPullRequests called.')}
+    return new Promise (function(fulfill,reject){
+        github.pullRequests.getAll({ owner: owner , repo: repo , state: "all"},function(err, data) {
+            if (err){
+                return reject(err);
+            }
+            data = data.data;
+            if (data) {
+				var array = [];
+				var count = 1;
+				for(var item in data ){
+				
+		array.push('#'+ count + ' '+'USER: ' + (JSON.stringify(data[item].user.login)) + ' TITLE: '  + (JSON.stringify(data[item].title)) + ' NUMBER: '   + (JSON.stringify(data[item].number))+  '\n');	
+		count++;
+					
+				}
+                fulfill('List Of All Pull Requests: \n'  + array);
+            }
+        });
+    });
+}
+
+exports.getAllClosedPullRequests = function(){
+    if (exports.DEBUG) {console.log('getAllClosedPullRequests called.')}
+    return new Promise (function(fulfill,reject){
+        github.pullRequests.getAll({ owner: owner , repo: repo},function(err, data) {
+            if (err){
+                return reject(err);
+            }
+            data = data.data;
+            if (data) {
+				var array = [];
+				var count = 1;
+				for(var item in data ){
+				
+		array.push('#'+ count + ' '+'USER: ' + (JSON.stringify(data[item].user.login)) + ' TITLE: '  + (JSON.stringify(data[item].title)) + ' NUMBER: '   + (JSON.stringify(data[item].number))+  '\n');	
+		count++;
+					
+				}
+                fulfill('List Of Closed Pull Requests: \n'  + array);
+            }
+        });
+    });
+}
 exports.mergePullRequest = function(input){
     if (exports.DEBUG) {console.log('mergePullRequest called.')}
 	return new Promise (function(fulfill,reject){

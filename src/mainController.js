@@ -95,6 +95,9 @@ exports.parseCommand = function(message) {
 			}else if (keyMessage(text, 'merge pull request')){
 			     text = text.substring('merge pull request '.length, text.length);
 				 SLACK.handleMessagePromise(GIT.mergePullRequest(text), message);
+			}else if (keyMessage(text, 'get comments for')){
+			     text = text.substring('get comments for '.length, text.length);
+				 SLACK.handleMessagePromise(GIT.getComments(text), message);
 			}else if (keyMessage(text, 'feeds')){
                 SLACK.handleMessagePromise(GIT.feeds(), message);
             }else if (keyMessage(text, 'add repo ')){
@@ -176,6 +179,7 @@ git (GitHub)
 \tupdate owner [owner]
 \tupdate repo [repo]
 \tupdate username [username]
+\tget comments for [pull request number]
 
 slack
 \t#(Channel Name)

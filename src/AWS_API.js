@@ -285,8 +285,9 @@ var getTotalInstanceCostSub = function (instance) {
         // caluclate the number of hours running rounded up (how AWS charges)
         var hours = Math.ceil((currentEpoch - launchEpoch) / 60 / 60);
 
+        var totalCost = Math.round(hours * cost * 100) / 100;
         var resp = 'The total cost of ' + instance.InstanceId + name + ' is $';
-        resp +=  hours*cost + ' over ' + hours + ' hours. ($' + cost + '/hour)';
+        resp +=  totalCost + ' over ' + hours + ' hours. ($' + cost + '/hour)';
         fulfill(resp);
     });
 }
@@ -366,6 +367,7 @@ exports.getTotalAccountCost = function () {
                 accountTotalCost += hours*cost;
             }
 
+            accountTotalCost = Math.round(accountTotalCost * 100) / 100;
             var resp = 'The total cost of the account is $';
             resp +=  accountTotalCost + '. All of the machines running cost $' + cost + '/hour.';
             fulfill(resp);

@@ -26,7 +26,7 @@ exports.parseCommand = function(message) {
             if (keyMessage(text, 'account')) {
                 SLACK.handleMessagePromise(AWS.getTotalAccountCost(), message);
             } else {
-                SLACK.handleMessagePromise(AWS.getTotalInstanceCost(text.substring('get cost of '.length, text.length)), message);
+                SLACK.handleMessagePromise(AWS.getTotalInstanceCost(text), message);
             }
         } else if (keyMessage(text, 'list instances')) {
             SLACK.handleMessagePromise(AWS.listInstances(), message);
@@ -69,48 +69,48 @@ exports.parseCommand = function(message) {
                 SLACK.handleMessagePromise(GIT.checkLatestClosedPullRequest(), message);
             }else if (keyMessage(text, 'time')){
                 text = text.substring('time '.length, text.length);
-			     SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);
-			}else if (keyMessage(text, 'contributors')){
-			     SLACK.handleMessagePromise(GIT.checkContributors(), message);
-			}else if (keyMessage(text, 'display info')){
-			     SLACK.handleMessagePromise(GIT.displayInfo(), message);
-			}else if (keyMessage(text, 'update owner')){
-			     text = text.substring('update owner '.length, text.length);
-				 SLACK.handleMessagePromise(GIT.updateOwner(text), message);
-			}else if (keyMessage(text, 'update repo')){
-			     text = text.substring('update repo '.length, text.length);
-				 SLACK.handleMessagePromise(GIT.updateRepo(text), message);
-			}else if (keyMessage(text, 'update username')){
-			     text = text.substring('update username '.length, text.length);
-				 SLACK.handleMessagePromise(GIT.updateUsername(text), message);
-			}else if (keyMessage(text, 'repos')) {
-				 text = text.substring('repos '.length, text.length);
-				 SLACK.handleMessagePromise(GIT.getRepos(text), message);
-			}else if (keyMessage(text, 'get all open pull requests')){
-			     SLACK.handleMessagePromise(GIT.getAllOpenPullRequests(), message);
-			}else if (keyMessage(text, 'get all closed pull requests')){
-			     SLACK.handleMessagePromise(GIT.getAllClosedPullRequests(), message);
-			}else if (keyMessage(text, 'get all pull requests')){
-			     SLACK.handleMessagePromise(GIT.getAllPullRequests(), message);
-			}else if (keyMessage(text, 'merge pull request')){
-			     text = text.substring('merge pull request '.length, text.length);
-				 SLACK.handleMessagePromise(GIT.mergePullRequest(text), message);
-			}else if (keyMessage(text, 'get comments for')){
-			     text = text.substring('get comments for '.length, text.length);
-				 SLACK.handleMessagePromise(GIT.getComments(text), message);
-			}else if (keyMessage(text, 'feeds')){
+                 SLACK.handleMessagePromise(GIT.checkLatestBranchUpdatgeTime(text), message);
+            }else if (keyMessage(text, 'contributors')){
+                 SLACK.handleMessagePromise(GIT.checkContributors(), message);
+            }else if (keyMessage(text, 'display info')){
+                 SLACK.handleMessagePromise(GIT.displayInfo(), message);
+            }else if (keyMessage(text, 'update owner')){
+                 text = text.substring('update owner '.length, text.length);
+                 SLACK.handleMessagePromise(GIT.updateOwner(text), message);
+            }else if (keyMessage(text, 'update repo')){
+                 text = text.substring('update repo '.length, text.length);
+                 SLACK.handleMessagePromise(GIT.updateRepo(text), message);
+            }else if (keyMessage(text, 'update username')){
+                 text = text.substring('update username '.length, text.length);
+                 SLACK.handleMessagePromise(GIT.updateUsername(text), message);
+            }else if (keyMessage(text, 'repos')) {
+                 text = text.substring('repos '.length, text.length);
+                 SLACK.handleMessagePromise(GIT.getRepos(text), message);
+            }else if (keyMessage(text, 'get all open pull requests')){
+                 SLACK.handleMessagePromise(GIT.getAllOpenPullRequests(), message);
+            }else if (keyMessage(text, 'get all closed pull requests')){
+                 SLACK.handleMessagePromise(GIT.getAllClosedPullRequests(), message);
+            }else if (keyMessage(text, 'get all pull requests')){
+                 SLACK.handleMessagePromise(GIT.getAllPullRequests(), message);
+            }else if (keyMessage(text, 'merge pull request')){
+                 text = text.substring('merge pull request '.length, text.length);
+                 SLACK.handleMessagePromise(GIT.mergePullRequest(text), message);
+            }else if (keyMessage(text, 'get comments for')){
+                 text = text.substring('get comments for '.length, text.length);
+                 SLACK.handleMessagePromise(GIT.getComments(text), message);
+            }else if (keyMessage(text, 'feeds')){
                 SLACK.handleMessagePromise(GIT.feeds(), message);
             }else if (keyMessage(text, 'add repo ')){
-			     text = text.substring('add repo '.length, text.length);
+                 text = text.substring('add repo '.length, text.length);
                 message.text = text;
-				 SLACK.handleMessagePromise(GIT.addRepo(message), message);
+                 SLACK.handleMessagePromise(GIT.addRepo(message), message);
 
-			}else if (keyMessage(text, '-testrepo ')){
-			     text = text.substring('-testrepo '.length, text.length);
-				 SLACK.handleMessagePromise(GIT.repoTest(text), message);
-			}else {
-				SLACK.sendMessage("Git Command does not exist", message);
-			}
+            }else if (keyMessage(text, '-testrepo ')){
+                 text = text.substring('-testrepo '.length, text.length);
+                 SLACK.handleMessagePromise(GIT.repoTest(text), message);
+            }else {
+                SLACK.sendMessage("Git Command does not exist", message);
+            }
     }else if (keyMessage(text, 'help ')) {
         SLACK.handleMessagePromise(getActiveCommands(), message);
     }else if (keyMessage(text, 'shutdown ')) {

@@ -156,9 +156,10 @@ getActiveCommands = function(){
 
 aws (Cloud - Amazon Web Services)
 \tlist instances
-\tcheck ec2 [instance]
+\tcheck ec2
+\tcheck ec2 instance [instanceId]
 \tcheck number of instances
-\tget cost of [instance]
+\tget cost of [instanceId]
 \tget cost of account
 
 git (GitHub)
